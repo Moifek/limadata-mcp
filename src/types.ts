@@ -215,20 +215,25 @@ export interface SearchPeopleResponse {
 }
 
 export interface SearchCompaniesRequest {
-  industry?: string;
-  employee_count?: string;
-  revenue_range?: string;
-  funding_stage?: string;
-  location?: string;
-  limit?: number;
-  offset?: number;
+  query: string; // Required: search keywords
+  company_size?: string | null; // Optional: comma-separated codes (A,B,C,D,E,F,G,H)
+  industry_list?: string | null; // Optional: comma-separated Professional Network industry IDs
+  location_list?: string | null; // Optional: comma-separated location IDs
+  has_jobs?: boolean | null; // Optional: filter for companies currently hiring
+  page?: number; // Optional: page number (1-100)
+}
+
+export interface CompanySearchResult {
+  name: string | null;
+  url: string | null;
+  image_url: string | null;
+  industry: string | null;
+  location: string | null;
+  headline: string | null;
 }
 
 export interface SearchCompaniesResponse {
-  data: Company[];
-  total: number;
-  limit: number;
-  offset: number;
+  companies: CompanySearchResult[];
 }
 
 export interface APIError {

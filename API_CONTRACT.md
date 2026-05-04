@@ -196,36 +196,49 @@ All responses include:
 
 **Endpoint:** `POST /api/v1/search/companies`
 
-**Description:** Search for companies matching specified criteria. Used for account-based marketing and company research.
+**Description:** Search for companies by keywords with optional filters for size, location, industry, and hiring status.
 
 **Rate Limit:** Global (1 req/sec)
 
-**Credits:** Variable (check response headers)
+**Credits:** 2 credits per request
 
 **Request Body:**
 ```typescript
 {
-  // Filter criteria (combine as needed)
-  industry?: string;
-  employee_count?: string;
-  revenue_range?: string;
-  funding_stage?: string;
-  location?: string;
-  // Additional filters depend on API schema
+  // Required
+  query: string;                    // Search keywords (e.g., "AI companies", "Microsoft")
   
-  // Pagination
-  limit?: number;
-  offset?: number;
+  // Optional filters
+  company_size?: string;            // Comma-separated codes: A,B,C,D,E,F,G,H
+                                    // A=1-10, B=11-50, C=51-200, D=201-500, E=501-1000, 
+                                    // F=1001-5000, G=5001-10000, H=10001+
+                                    // Example: "F,G,H" for companies with 1000+ employees
+  
+  industry_list?: string;           // Comma-separated Professional Network industry IDs
+                                    // Example: "4" for Software Development
+                                    // Find IDs in Professional Network search query strings
+  
+  location_list?: string;           // Comma-separated location IDs
+                                    // Example: "103644278" for United States
+                                    // Use /references/locations endpoint to find IDs
+  
+  has_jobs?: boolean;               // Filter for companies currently hiring
+  
+  page?: number;                    // Page number (1-100, default: 1)
 }
 ```
 
 **Response (200 OK):**
 ```typescript
 {
-  data: Array<CompanyObject>;
-  total: number;
-  limit: number;
-  offset: number;
+  companies: Array<{
+    name: string | null;
+    url: string | null;
+    image_url: string | null;
+    industry: string | null;
+    location: string | null;
+    headline: string | null;
+  }>;
 }
 ```
 

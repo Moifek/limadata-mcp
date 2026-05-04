@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Integration test script for Limadata MCP server
+# Run this while 'npm start' is running in another terminal
+
+set -e
+
+# Load API key from .env
+if [ -f .env ]; then
+    export $(grep LIMADATA_API_KEY .env | xargs)
+fi
+
+if [ -z "$LIMADATA_API_KEY" ]; then
+    echo "Error: LIMADATA_API_KEY not set"
+    exit 1
+fi
+
+echo "🧪 Testing Limadata MCP Server"
+echo "API Key: ${LIMADATA_API_KEY:0:10}..."
+echo
+
+# Test 1: Credits Balance (no input needed)
+echo "1️⃣  Testing: Get Credits Balance"
+node -e "
+const { LiamataAPIClient } = require('./dist/client.js');
+const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
+client.getCreditsBalance()
+  .then(result => console.log('✓ Credits:', result.balance))
+  .catch(err => console.error('✗ Error:', err.message));
+" || echo "⚠️  Note: Run 'npm run build' first"
+
+echo
+
+# Test 2: Enrich Person
+echo "2️⃣  Testing: Enrich Person (by email)"
+node -e "
+const { LiamataAPIClient } = require('./dist/client.js');
+const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
+client.enrichPerson({ email: '' })
+  .then(result => {
+    const person = result.person;
+    console.log('✓ Person:', person.name || '(no name found)');
+    console.log('  Email:', person.emails[0] || '(no email)');
+  })
+  .catch(err => console.error('✗ Error:', err.message));
+" || echo "⚠️  Note: Run 'npm run build' first"
+
+echo
+
+# Test 3: Search Companies
+echo "3️⃣  Testing: Search Companies"
+node -e "
+const { LiamataAPIClient } = require('./dist/client.js');
+const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
+client.searchCompanies({
+  query: 'AI',
+  company_size: 'F,G,H',
+  page: 1
+})
+  .then(result => {
+    console.log('✓ Found', result.companies.length, 'companies');
+    if (result.companies.length > 0) {
+      console.log('  First:', result.companies[0].name);
+      console.log('  Industry:', result.companies[0].industry);
+    }
+  })
+  .catch(err => {
+    console.error('✗ Error:', err.message);
+  });
+" || echo "⚠️  Note: Run 'npm run build' first"
+
+echo
+echo "✅ All tests complete!"
+echo
+echo "To test interactively:"
+echo "  - Use Claude Desktop (run: npm run setup:claude-desktop)"
+echo "  - Or use curl with the MCP protocol"

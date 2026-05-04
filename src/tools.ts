@@ -108,39 +108,40 @@ export const searchPeopleTool: Tool = {
 export const searchCompaniesTool: Tool = {
   name: "search_companies",
   description:
-    "Search for companies matching specified criteria. Used for account-based marketing and company research.",
+    "Search for companies by keywords with optional filters for size, location, industry, and hiring status.",
   inputSchema: {
     type: "object" as const,
     properties: {
-      industry: {
+      query: {
         type: "string",
-        description: "Filter by industry",
+        description:
+          "Search query/keywords (required). Example: 'AI companies' or 'Microsoft'",
       },
-      employee_count: {
+      company_size: {
         type: "string",
-        description: "Filter by employee count range",
+        description:
+          "Filter by company size (comma-separated codes). A=1-10, B=11-50, C=51-200, D=201-500, E=501-1000, F=1001-5000, G=5001-10000, H=10001+. Example: 'F,G,H' for 1000+ employees",
       },
-      revenue_range: {
+      industry_list: {
         type: "string",
-        description: "Filter by revenue range",
+        description:
+          "Filter by industry (comma-separated Professional Network industry IDs). Example: '4' for Software Development",
       },
-      funding_stage: {
+      location_list: {
         type: "string",
-        description: "Filter by funding stage",
+        description:
+          "Filter by location (comma-separated location IDs). Example: '103644278' for United States",
       },
-      location: {
-        type: "string",
-        description: "Filter by location",
+      has_jobs: {
+        type: "boolean",
+        description: "Filter for companies currently hiring",
       },
-      limit: {
+      page: {
         type: "number",
-        description: "Number of results to return (default: 20)",
-      },
-      offset: {
-        type: "number",
-        description: "Pagination offset (default: 0)",
+        description: "Page number (1-100, default: 1)",
       },
     },
+    required: ["query"],
   },
 };
 
@@ -210,15 +211,18 @@ export function validateSearchPeopleInput(
 export function validateSearchCompaniesInput(
   input: Record<string, unknown>
 ): Types.SearchCompaniesRequest {
-  const { industry, employee_count, revenue_range, funding_stage, location, limit, offset } = input;
+  const { query, company_size, industry_list, location_list, has_jobs, page } = input;
+
+  if (!query) {
+    throw new Error("'query' is required for company search");
+  }
 
   return {
-    industry: industry ? String(industry) : undefined,
-    employee_count: employee_count ? String(employee_count) : undefined,
-    revenue_range: revenue_range ? String(revenue_range) : undefined,
-    funding_stage: funding_stage ? String(funding_stage) : undefined,
-    location: location ? String(location) : undefined,
-    limit: typeof limit === "number" ? limit : undefined,
-    offset: typeof offset === "number" ? offset : undefined,
+    query: String(query),
+    company_size: company_size ? String(company_size) : null,
+    industry_list: industry_list ? String(industry_list) : null,
+    location_list: location_list ? String(location_list) : null,
+    has_jobs: typeof has_jobs === "boolean" ? has_jobs : null,
+    page: typeof page === "number" ? page : undefined,
   };
 }
