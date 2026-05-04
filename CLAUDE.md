@@ -35,9 +35,10 @@ npm run watch
 
 ## Environment Setup
 
-1. Create `.env` file from `.env.example`
+1. Create `.env` file from `.env.example`: `cp .env.example .env`
 2. Add your Limadata API key from https://app.limadata.com/settings/apikeys
-3. Set `LIMADATA_API_KEY` environment variable
+3. The `.env` file is automatically loaded when you run `npm start`
+   - No need to manually `export` or pass via command line
 
 ## Implemented Tools
 

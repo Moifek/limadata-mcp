@@ -5,15 +5,17 @@
 ```bash
 # 1. Get your API key from https://app.limadata.com/settings/apikeys
 
-# 2. Build the project
+# 2. Create .env file
+cp .env.example .env
+# Edit .env and paste your API key
+
+# 3. Build and run
 npm install
 npm run build
-
-# 3. Run with your API key
-LIMADATA_API_KEY=your_api_key_here npm start
+npm start
 ```
 
-That's it! The server is now running via stdio (MCP protocol).
+That's it! The server reads from `.env` automatically and is now running via stdio (MCP protocol).
 
 ---
 
