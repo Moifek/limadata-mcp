@@ -33,29 +33,37 @@ A Model Context Protocol (MCP) server that wraps the Limadata API, enabling Clau
 - [x] **Request history** — Last 5 API calls tracked in memory
 - [x] **Multiple deployment options** — NPM, Docker, Docker Compose, Claude Desktop, Systemd
 
-## Quick Start
+## Quick Start (via npx)
 
-### 1. Setup
+The fastest way is to use the published NPM package — no install, no clone:
+
+Add this to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "limadata": {
+      "command": "npx",
+      "args": ["limadata-mcp"],
+      "env": {
+        "LIMADATA_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+Get your API key from https://app.limadata.com/settings/apikeys, then restart Claude Desktop.
+
+## Local Development
 
 ```bash
+git clone https://github.com/Moifek/limadata-mcp.git
+cd limadata-mcp
 npm install
 cp .env.example .env
-# Edit .env and add LIMADATA_API_KEY from https://app.limadata.com/settings/apikeys
-```
-
-### 2. Run
-
-```bash
+# Edit .env and add LIMADATA_API_KEY
 npm start
-```
-
-The server is now running and ready for Claude to call tools.
-
-### 3. Integrate with Claude Desktop
-
-```bash
-npm run setup:claude-desktop
-# Restart Claude Desktop
 ```
 
 ## Project Structure
