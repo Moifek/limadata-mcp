@@ -24,7 +24,7 @@ A Model Context Protocol (MCP) server that wraps the Limadata API, enabling Clau
 - [x] **Input validation** — All inputs validated before API calls
 - [x] **Error handling** — Fast feedback on invalid input, clear API error messages
 - [x] **Request history** — Last 5 API calls tracked in memory
-- [x] **Multiple deployment options** — NPM, Docker, Docker Compose, Claude Desktop, Systemd
+- [x] **Distributed via NPM** — `npx limadata-mcp` for Claude Desktop or any MCP client
 
 ## Quick Start (via npx)
 
@@ -74,16 +74,12 @@ Documentation (root)
   ├── QUICK_START.md  # Local development setup
   ├── CLAUDE.md       # Development guide (5-step pattern for new tools)
   ├── API_CONTRACT.md # Endpoint specifications
-  ├── INTEGRATION.md  # Docker, systemd, production deployment
-  ├── TESTING.md      # Credit-conscious testing guide
-  └── PUBLISH.md      # NPM publishing notes
+  └── TESTING.md      # Credit-conscious testing guide
 
 Configuration
   ├── package.json
   ├── tsconfig.json
-  ├── .env.example
-  ├── Dockerfile
-  └── docker-compose.yml
+  └── .env.example
 
 Testing
   └── test.sh         # Smoke test (Credits Balance, free)
@@ -136,13 +132,9 @@ npm run watch   # Watch mode during development
 
 See [TESTING.md](TESTING.md) for credit-conscious manual test snippets per tool.
 
-## Deployment Options
+## Deployment
 
-| Method | Best For | How |
-|--------|----------|-----|
-| Claude Desktop via npx | Daily use | See [Quick Start](#quick-start-via-npx) above |
-| Docker | Isolated, reproducible | `docker-compose up` |
-| Production | Systemd/k8s | See [INTEGRATION.md](INTEGRATION.md) |
+The primary deployment is `npx limadata-mcp` via the [Quick Start](#quick-start-via-npx) config above. For local development, see [QUICK_START.md](QUICK_START.md).
 
 ## API Documentation
 
