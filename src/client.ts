@@ -95,4 +95,19 @@ export class LiamataAPIClient {
       "/api/v1/credits/balance"
     );
   }
+
+  async getCompanyInsights(
+    request: Types.CompanyInsightsRequest
+  ): Promise<Types.CompanyInsights> {
+    const params = new URLSearchParams();
+    if (request.identifier) {
+      params.append("identifier", request.identifier);
+    }
+    if (request.domain) {
+      params.append("domain", request.domain);
+    }
+
+    const url = `/api/v1/company/insights?${params.toString()}`;
+    return this.request<Types.CompanyInsights>("GET", url);
+  }
 }

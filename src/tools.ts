@@ -173,6 +173,27 @@ export const creditsBalanceTool: Tool = {
   },
 };
 
+export const companyInsightsTool: Tool = {
+  name: "get_company_insights",
+  description:
+    "Get detailed company insights from Business Intelligence and other data sources including news, funding rounds, investors, employees, technology stack, acquisitions, and IT spending. Perfect for lead scoring.",
+  inputSchema: {
+    type: "object" as const,
+    properties: {
+      identifier: {
+        type: "string",
+        description:
+          "Business Intelligence identifier (last part of Business Intelligence URL). Example: 'amazon' from https://www.bizdata.com/organization/amazon. Use this if you know the identifier.",
+      },
+      domain: {
+        type: "string",
+        description:
+          "Company domain (e.g., amazon.com). Use this if you don't know the Business Intelligence identifier. We'll look it up for you.",
+      },
+    },
+  },
+};
+
 export function validateEnrichPersonInput(
   input: Record<string, unknown>
 ): Types.EnrichPersonRequest {
@@ -241,6 +262,25 @@ export function validateSearchPeopleInput(
     industry_list: industry_list ? String(industry_list) : null,
     location_list: location_list ? String(location_list) : null,
     page: typeof page === "number" ? page : undefined,
+  };
+}
+
+export function validateCompanyInsightsInput(
+  input: Record<string, unknown>
+): Types.CompanyInsightsRequest {
+  const { identifier, domain } = input;
+
+  if (!identifier && !domain) {
+    throw new Error("Either 'identifier' or 'domain' is required for company insights");
+  }
+
+  if (identifier && domain) {
+    throw new Error("Only one of 'identifier' or 'domain' should be provided");
+  }
+
+  return {
+    identifier: identifier ? String(identifier) : null,
+    domain: domain ? String(domain) : null,
   };
 }
 

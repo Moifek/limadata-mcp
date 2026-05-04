@@ -260,7 +260,89 @@ All responses include:
 
 ---
 
-### 5. Credits Balance
+### 5. Company Insights
+
+**Endpoint:** `GET /api/v1/company/insights`
+
+**Description:** Get detailed company insights from Business Intelligence and other data sources. Returns comprehensive data including news, funding rounds, investors, employees, technology stack, acquisitions, and IT spending. Perfect for lead scoring and company research.
+
+**Rate Limit:** Global (1 req/sec)
+
+**Credits:** 5 credits per request
+
+**Query Parameters (exactly one required):**
+```typescript
+{
+  identifier?: string;    // Business Intelligence identifier (e.g., "amazon")
+                          // Last part of Business Intelligence URL
+                          // Only use if you know the identifier
+  
+  domain?: string;        // Company domain (e.g., "amazon.com")
+                          // Use this if you don't know the Business Intelligence identifier
+                          // Returns 404 with no charge if identifier can't be found
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  name: string | null;
+  website: string | null;
+  profile_url: string | null;
+  headline: string | null;
+  description: string | null;
+  address: string | null;
+  email: string | null;
+  phone: string | null;
+  categories: string[];
+  operating_status: string | null;
+  founded_date: string | null;
+  company_type: string | null;
+  employee_range: string | null;
+  ipo_status: string | null;
+  
+  // Social & profiles
+  linked_in: string | null;
+  twitter: string | null;
+  facebook: string | null;
+  
+  // Team
+  advisor_count: number | null;
+  investor_count: number | null;
+  employees: Array<{ name, title, image, permalink }>;
+  investors: Array<{ name, title, image, permalink }>;
+  
+  // Funding
+  funding_rounds_count: number | null;
+  funding_total: { currency, value, value_usd };
+  funding_rounds: Array<{
+    announced_on: string;
+    money_raised: { currency, value, value_usd };
+    lead_investors: Array<{ name, title }>;
+  }>;
+  
+  // M&A
+  acquired_by: { acquirer, acquisition_price, date };
+  acquisitions: Array<{ acquiree, announced_on, price }>;
+  
+  // Technology & web
+  technology: {
+    monthly_web_visits: number | null;
+    monthly_web_visits_growth: number | null;
+    actively_used_products_count: number | null;
+    it_spend: { currency, value, value_usd };
+    interest_signals: Array<{ topic, surge_score }>;
+  };
+  
+  // Coverage
+  news: Array<{ title, url, publisher, date, thumbnail_url }>;
+  similar_companies: Array<{ name, url }>;
+}
+```
+
+---
+
+### 6. Credits Balance
 
 **Endpoint:** `GET /api/v1/credits/balance`
 

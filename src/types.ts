@@ -245,6 +245,107 @@ export interface SearchCompaniesResponse {
   companies: CompanySearchResult[];
 }
 
+export interface Money {
+  currency: string | null;
+  value: number | null;
+  value_usd: number | null;
+}
+
+export interface Person {
+  image: string | null;
+  name: string | null;
+  permalink: string | null;
+  title: string | null;
+}
+
+export interface FundingRound {
+  announced_on: string | null;
+  id: string | null;
+  image: string | null;
+  investor_count: number | null;
+  lead_investors: Person[];
+  money_raised: Money;
+}
+
+export interface NewsItem {
+  date: string | null;
+  organization: string | null;
+  publisher: string | null;
+  thumbnail_url: string | null;
+  title: string | null;
+  url: string | null;
+}
+
+export interface Acquisition {
+  acquiree: Person;
+  announced_on: string | null;
+  price: Money;
+}
+
+export interface AcquiredBy {
+  acquirer: string | null;
+  acquirer_permalink: string | null;
+  acquisition_price: string | null;
+  date: string | null;
+  transaction_name: string | null;
+}
+
+export interface InterestSignal {
+  topic: string | null;
+  surge_score: number | null;
+}
+
+export interface TechnologyInsights {
+  monthly_web_visits: number | null;
+  monthly_web_visits_growth: number | null;
+  actively_used_products_count: number | null;
+  active_website_tech_count: number | null;
+  total_ip_count: number | null;
+  most_popular_ip_class: string | null;
+  it_spend: Money;
+  interest_signals: InterestSignal[];
+}
+
+export interface CompanyInsights {
+  name: string | null;
+  website: string | null;
+  profile_url: string | null;
+  headline: string | null;
+  description: string | null;
+  address: string | null;
+  email: string | null;
+  phone: string | null;
+  categories: string[];
+  operating_status: string | null;
+  founded_date: string | null;
+  company_type: string | null;
+  employee_range: string | null;
+  ipo_status: string | null;
+  logo_url: string | null;
+  legal_name: string | null;
+  stock_symbol: string | null;
+  linked_in: string | null;
+  twitter: string | null;
+  facebook: string | null;
+  advisor_count: number | null;
+  investor_count: number | null;
+  funding_rounds_count: number | null;
+  funding_total: Money;
+  acquired_by: AcquiredBy;
+  employees: Person[];
+  investors: Person[];
+  funding_rounds: FundingRound[];
+  news: NewsItem[];
+  similar_companies: Array<{ name: string | null; url: string | null }>;
+  technology: TechnologyInsights;
+  acquisitions: Acquisition[];
+}
+
+export interface CompanyInsightsRequest {
+  identifier?: string | null; // Business Intelligence identifier
+  domain?: string | null; // Company domain (if identifier not provided)
+}
+
 export interface APIError {
   status: number;
   message: string;

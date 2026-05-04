@@ -93,8 +93,28 @@ client.searchPeople({
 " || echo "⚠️  Note: Run 'npm run build' first"
 
 echo
+
+# Test 5: Company Insights
+echo "5️⃣  Testing: Company Insights"
+node -e "
+const { LiamataAPIClient } = require('./dist/client.js');
+const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
+client.getCompanyInsights({ domain: 'openai.com' })
+  .then(result => {
+    console.log('✓ Company:', result.name);
+    console.log('  Founded:', result.founded_date);
+    console.log('  Funding Total (USD):', result.funding_total?.value_usd);
+    console.log('  Employees:', result.employee_range);
+    console.log('  Tech Interest Signals:', result.technology?.interest_signals?.length || 0);
+  })
+  .catch(err => {
+    console.error('✗ Error:', err.message);
+  });
+" || echo "⚠️  Note: Run 'npm run build' first"
+
+echo
 echo "✅ All tests complete!"
 echo
 echo "To test interactively:"
 echo "  - Use Claude Desktop (run: npm run setup:claude-desktop)"
-echo "  - Or use curl with the MCP protocol"
+echo "  - Try: 'Get detailed insights about OpenAI'"

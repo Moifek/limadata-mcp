@@ -35,6 +35,7 @@ const toolsList: Tool[] = [
   Tools.enrichCompanyTool,
   Tools.searchPeopleTool,
   Tools.searchCompaniesTool,
+  Tools.companyInsightsTool,
   Tools.creditsBalanceTool,
 ];
 
@@ -91,6 +92,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "search_companies": {
         const validated = Tools.validateSearchCompaniesInput(args as Record<string, unknown>);
         const result = await client.searchCompanies(validated);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get_company_insights": {
+        const validated = Tools.validateCompanyInsightsInput(args as Record<string, unknown>);
+        const result = await client.getCompanyInsights(validated);
         return {
           content: [
             {
