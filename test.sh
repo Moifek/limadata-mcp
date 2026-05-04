@@ -70,6 +70,29 @@ client.searchCompanies({
 " || echo "⚠️  Note: Run 'npm run build' first"
 
 echo
+
+# Test 4: Search People
+echo "4️⃣  Testing: Search People"
+node -e "
+const { LiamataAPIClient } = require('./dist/client.js');
+const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
+client.searchPeople({
+  query: 'John Smith',
+  page: 1
+})
+  .then(result => {
+    console.log('✓ Found', result.total_count, 'people');
+    if (result.people.length > 0) {
+      console.log('  First:', result.people[0].full_name);
+      console.log('  Headline:', result.people[0].headline);
+    }
+  })
+  .catch(err => {
+    console.error('✗ Error:', err.message);
+  });
+" || echo "⚠️  Note: Run 'npm run build' first"
+
+echo
 echo "✅ All tests complete!"
 echo
 echo "To test interactively:"

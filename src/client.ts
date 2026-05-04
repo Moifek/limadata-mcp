@@ -75,7 +75,7 @@ export class LiamataAPIClient {
     return this.request<Types.SearchPeopleResponse>(
       "POST",
       "/api/v1/search/people",
-      request as Record<string, unknown>
+      request as unknown as Record<string, unknown>
     );
   }
 

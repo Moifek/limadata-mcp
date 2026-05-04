@@ -69,39 +69,57 @@ export const enrichCompanyTool: Tool = {
 export const searchPeopleTool: Tool = {
   name: "search_people",
   description:
-    "Search for people matching specified criteria. Used for prospecting and lead discovery.",
+    "Search for people by keywords with optional filters for title, company, location, and industry. Best used for targeted searches (specific names, titles, etc.)",
   inputSchema: {
     type: "object" as const,
     properties: {
-      job_title: {
+      query: {
         type: "string",
-        description: "Filter by job title",
+        description:
+          "Search query/keywords (required). Example: 'John Smith', 'Software Engineer at Microsoft', or 'Product Manager in SF'",
       },
-      location: {
+      title: {
         type: "string",
-        description: "Filter by location",
+        description: "Filter by job title keywords. Example: 'Software Engineer'",
       },
-      industry: {
+      company: {
         type: "string",
-        description: "Filter by industry",
+        description: "Filter by company name keywords. Example: 'Microsoft'",
       },
-      company_size: {
+      first_name: {
         type: "string",
-        description: "Filter by company size",
+        description: "Filter by first name keywords",
       },
-      company_domain: {
+      last_name: {
         type: "string",
-        description: "Filter by company domain",
+        description: "Filter by last name keywords",
       },
-      limit: {
+      current_company_list: {
+        type: "string",
+        description:
+          "Filter by current company (comma-separated Professional Network company IDs). Example: '1035' for Microsoft",
+      },
+      past_company_list: {
+        type: "string",
+        description:
+          "Filter by past company (comma-separated Professional Network company IDs)",
+      },
+      industry_list: {
+        type: "string",
+        description:
+          "Filter by industry (comma-separated Professional Network industry IDs). Example: '4' for Software Development",
+      },
+      location_list: {
+        type: "string",
+        description:
+          "Filter by location (comma-separated location IDs). Example: '103644278' for United States",
+      },
+      page: {
         type: "number",
-        description: "Number of results to return (default: 20)",
-      },
-      offset: {
-        type: "number",
-        description: "Pagination offset (default: 0)",
+        description: "Page number (1-100, default: 1)",
       },
     },
+    required: ["query"],
   },
 };
 
@@ -195,16 +213,34 @@ export function validateEnrichCompanyInput(
 export function validateSearchPeopleInput(
   input: Record<string, unknown>
 ): Types.SearchPeopleRequest {
-  const { job_title, location, industry, company_size, company_domain, limit, offset } = input;
+  const {
+    query,
+    title,
+    company,
+    first_name,
+    last_name,
+    current_company_list,
+    past_company_list,
+    industry_list,
+    location_list,
+    page,
+  } = input;
+
+  if (!query) {
+    throw new Error("'query' is required for people search");
+  }
 
   return {
-    job_title: job_title ? String(job_title) : undefined,
-    location: location ? String(location) : undefined,
-    industry: industry ? String(industry) : undefined,
-    company_size: company_size ? String(company_size) : undefined,
-    company_domain: company_domain ? String(company_domain) : undefined,
-    limit: typeof limit === "number" ? limit : undefined,
-    offset: typeof offset === "number" ? offset : undefined,
+    query: String(query),
+    title: title ? String(title) : null,
+    company: company ? String(company) : null,
+    first_name: first_name ? String(first_name) : null,
+    last_name: last_name ? String(last_name) : null,
+    current_company_list: current_company_list ? String(current_company_list) : null,
+    past_company_list: past_company_list ? String(past_company_list) : null,
+    industry_list: industry_list ? String(industry_list) : null,
+    location_list: location_list ? String(location_list) : null,
+    page: typeof page === "number" ? page : undefined,
   };
 }
 

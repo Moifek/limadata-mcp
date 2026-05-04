@@ -157,38 +157,54 @@ All responses include:
 
 **Endpoint:** `POST /api/v1/search/people`
 
-**Description:** Search for people matching specified criteria. Used for prospecting and lead discovery.
+**Description:** Search for people by keywords with optional filters for title, company, location, and industry. Optimized for targeted searches (specific names, titles, etc.), not bulk lead generation.
 
 **Rate Limit:** Global (1 req/sec)
 
-**Credits:** Variable (check response headers)
+**Credits:** 2 credits per request
 
 **Request Body:**
 ```typescript
 {
-  // Filter criteria (combine as needed)
-  job_title?: string;
-  location?: string;
-  industry?: string;
-  company_size?: string;
-  company_domain?: string;
-  // Additional filters depend on API schema
+  // Required
+  query: string;                    // Search keywords (e.g., "John Smith", "Software Engineer", "Product Manager in SF")
   
-  // Pagination
-  limit?: number;
-  offset?: number;
+  // Optional filters
+  title?: string;                   // Job title keywords (e.g., "Software Engineer")
+  company?: string;                 // Company name keywords (e.g., "Microsoft")
+  first_name?: string;              // First name keywords
+  last_name?: string;               // Last name keywords
+  
+  current_company_list?: string;    // Comma-separated Professional Network company IDs
+                                    // Example: "1035" for Microsoft
+  
+  past_company_list?: string;       // Comma-separated Professional Network company IDs (previous employers)
+  
+  industry_list?: string;           // Comma-separated Professional Network industry IDs
+                                    // Example: "4" for Software Development
+  
+  location_list?: string;           // Comma-separated location IDs
+                                    // Example: "103644278" for United States
+  
+  page?: number;                    // Page number (1-100, default: 1)
 }
 ```
 
 **Response (200 OK):**
 ```typescript
 {
-  data: Array<PersonObject>;
-  total: number;
-  limit: number;
-  offset: number;
+  total_count: number;
+  people: Array<{
+    full_name: string | null;
+    profile_url: string | null;
+    image_url: string | null;
+    headline: string | null;
+    location: string | null;
+  }>;
 }
 ```
+
+**Important Note:** This endpoint is optimized for targeted searches. Requests with overly broad criteria may return limited results or be rejected. Keep searches specific (e.g., "John Smith at Microsoft" rather than just "Software Engineer").
 
 ---
 

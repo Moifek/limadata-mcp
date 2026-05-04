@@ -198,20 +198,29 @@ export interface CreditsBalanceResponse {
 }
 
 export interface SearchPeopleRequest {
-  job_title?: string;
-  location?: string;
-  industry?: string;
-  company_size?: string;
-  company_domain?: string;
-  limit?: number;
-  offset?: number;
+  query: string; // Required: search keywords
+  title?: string | null; // Optional: job title keywords
+  company?: string | null; // Optional: company name keywords
+  first_name?: string | null; // Optional: first name keywords
+  last_name?: string | null; // Optional: last name keywords
+  location_list?: string | null; // Optional: comma-separated location IDs
+  current_company_list?: string | null; // Optional: comma-separated Professional Network company IDs
+  past_company_list?: string | null; // Optional: comma-separated Professional Network company IDs
+  industry_list?: string | null; // Optional: comma-separated Professional Network industry IDs
+  page?: number; // Optional: page number (1-100)
+}
+
+export interface PersonSearchResult {
+  full_name: string | null;
+  profile_url: string | null;
+  image_url: string | null;
+  headline: string | null;
+  location: string | null;
 }
 
 export interface SearchPeopleResponse {
-  data: Person[];
-  total: number;
-  limit: number;
-  offset: number;
+  total_count: number;
+  people: PersonSearchResult[];
 }
 
 export interface SearchCompaniesRequest {
