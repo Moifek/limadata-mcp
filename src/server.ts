@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import "dotenv/config.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import {

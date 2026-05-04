@@ -7,9 +7,9 @@
   "bin": "dist/server.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/limadata-mcp.git"
+    "url": "https://github.com/moifek/limadata-mcp.git"
   },
-  "author": "Your Name",
+  "author": "Moifek Maiza <Mouafak.Maiza@proton.me>",
   "license": "MIT",
   "keywords": [
     "mcp",
@@ -30,7 +30,7 @@
     ".env.example"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/server.js",
     "dev": "tsc && node dist/server.js",
     "start": "node dist/server.js",
     "watch": "tsc --watch",
