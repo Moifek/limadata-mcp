@@ -18,6 +18,7 @@ fi
 
 echo "🧪 Testing Limadata MCP Server (All 8 Tools)"
 echo "API Key: ${LIMADATA_API_KEY:0:10}..."
+echo "Note: Tests include 1-second delays to respect rate limits (1 req/sec)"
 echo
 
 # Test 1: Credits Balance (no input needed)
@@ -28,9 +29,9 @@ const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
 client.getCreditsBalance()
   .then(result => console.log('✓ Credits remaining:', result.balance))
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
 # Test 2: Enrich Person (Bill Gates Professional Network)
 echo "2️⃣  Testing: Enrich Person (Professional Network URL)"
@@ -45,9 +46,9 @@ client.enrichPerson({ profnet_url: 'https://www.profnet.com/in/williamhgates' })
     console.log('  Current company:', person.employment?.company_name);
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
 # Test 3: Enrich Company (Microsoft)
 echo "3️⃣  Testing: Enrich Company"
@@ -63,9 +64,9 @@ client.enrichCompany({ domain: 'microsoft.com' })
     console.log('  Industry:', company.categories?.industry);
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
 # Test 4: Search Companies
 echo "4️⃣  Testing: Search Companies"
@@ -73,12 +74,12 @@ node -e "
 const { LiamataAPIClient } = require('./dist/client.js');
 const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
 client.searchCompanies({
-  query: 'artificial intelligence',
+  query: 'technology',
   company_size: 'F,G,H',
   page: 1
 })
   .then(result => {
-    console.log('✓ Found', result.companies?.length || 0, 'AI companies');
+    console.log('✓ Found', result.companies?.length || 0, 'tech companies');
     if (result.companies && result.companies.length > 0) {
       console.log('  First:', result.companies[0].name);
       console.log('  Industry:', result.companies[0].industry);
@@ -86,9 +87,9 @@ client.searchCompanies({
     }
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
 # Test 5: Search People
 echo "5️⃣  Testing: Search People"
@@ -108,16 +109,16 @@ client.searchPeople({
     }
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
-# Test 6: Company Insights (OpenAI)
+# Test 6: Company Insights (Amazon - well-established in Business Intelligence)
 echo "6️⃣  Testing: Company Insights"
 node -e "
 const { LiamataAPIClient } = require('./dist/client.js');
 const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.getCompanyInsights({ domain: 'openai.com' })
+client.getCompanyInsights({ domain: 'amazon.com' })
   .then(result => {
     console.log('✓ Company:', result.name);
     console.log('  Founded:', result.founded_date);
@@ -126,17 +127,17 @@ client.getCompanyInsights({ domain: 'openai.com' })
     console.log('  Tech signals:', result.technology?.interest_signals?.length || 0);
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
-# Test 7: Get Professional Network Posts (Microsoft company profile)
+# Test 7: Get Professional Network Posts (Professional Network company - public, active)
 echo "7️⃣  Testing: Get Professional Network Posts"
 node -e "
 const { LiamataAPIClient } = require('./dist/client.js');
 const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
 client.getProfessional NetworkPosts({
-  url: 'https://www.profnet.com/company/microsoft',
+  url: 'https://www.profnet.com/company/profnet',
   max_results: 5
 })
   .then(result => {
@@ -150,9 +151,9 @@ client.getProfessional NetworkPosts({
     }
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
-echo
+sleep 1
 
 # Test 8: Search Posts
 echo "8️⃣  Testing: Search Posts"
@@ -160,12 +161,12 @@ node -e "
 const { LiamataAPIClient } = require('./dist/client.js');
 const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
 client.searchPosts({
-  query: 'artificial intelligence',
+  query: 'innovation',
   page: 1,
   sort_by_latest: false
 })
   .then(result => {
-    console.log('✓ Found', result.total_count, 'posts about AI');
+    console.log('✓ Found', result.total_count, 'posts about innovation');
     if (result.posts && result.posts.length > 0) {
       const post = result.posts[0];
       console.log('  First post by:', post.actor?.name);
@@ -175,7 +176,7 @@ client.searchPosts({
     }
   })
   .catch(err => console.error('✗ Error:', err.message));
-"
+" || true
 
 echo
 echo "✅ All 8 tools tested!"
@@ -184,11 +185,16 @@ echo "Summary of test values used:"
 echo "  1. Credits Balance - No parameters"
 echo "  2. Enrich Person - Bill Gates Professional Network URL"
 echo "  3. Enrich Company - Microsoft domain (microsoft.com)"
-echo "  4. Search Companies - Query: 'artificial intelligence', large companies (F,G,H)"
+echo "  4. Search Companies - Query: 'technology', large companies (F,G,H)"
 echo "  5. Search People - Query: 'software engineer'"
-echo "  6. Company Insights - OpenAI (openai.com)"
-echo "  7. Get Professional Network Posts - Microsoft company profile"
-echo "  8. Search Posts - Query: 'artificial intelligence', sorted by relevance"
+echo "  6. Company Insights - Amazon (amazon.com) - major public company in Business Intelligence"
+echo "  7. Get Professional Network Posts - Professional Network company profile (public, very active)"
+echo "  8. Search Posts - Query: 'innovation', sorted by relevance"
+echo
+echo "Test execution:"
+echo "  - 1 second delay between tests (respects rate limit: 1 req/sec)"
+echo "  - Tests continue even if one fails (|| true)"
+echo "  - Error messages show API response details"
 echo
 echo "To test interactively:"
 echo "  - Use Claude Desktop (run: npm run setup:claude-desktop)"

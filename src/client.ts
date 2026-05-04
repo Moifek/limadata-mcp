@@ -60,12 +60,25 @@ export class LiamataAPIClient {
     this.lastMetadata = metadata;
     this.requestHistory.push(metadata);
 
-    const data = await response.json() as T & { error?: unknown };
+    let data;
+    try {
+      data = await response.json() as T & { error?: unknown };
+    } catch {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      throw new Error("Failed to parse response");
+    }
 
     if (!response.ok) {
+      const apiError = data as unknown as Record<string, unknown>;
       const errorMessage =
         typeof data.error === "string"
           ? data.error
+          : typeof apiError.detail === "string"
+          ? apiError.detail
+          : typeof apiError.message === "string"
+          ? apiError.message
           : `HTTP ${response.status}`;
       throw new Error(errorMessage);
     }
