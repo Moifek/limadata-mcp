@@ -1,4 +1,25 @@
-// Core API response/request types
+// TypeScript type definitions for all Limadata API endpoints
+//
+// Request/Response Pairs (8 tools):
+// 1. Enrich Person:        EnrichPersonRequest -> EnrichPersonResponse
+// 2. Enrich Company:       EnrichCompanyRequest -> EnrichCompanyResponse
+// 3. Search People:        SearchPeopleRequest -> SearchPeopleResponse
+// 4. Search Companies:     SearchCompaniesRequest -> SearchCompaniesResponse
+// 5. Company Insights:     CompanyInsightsRequest -> CompanyInsights
+// 6. Get Professional Network Posts:   GetProfessional NetworkPostsRequest -> GetProfessional NetworkPostsResponse
+// 7. Search Posts:         SearchPostsRequest -> SearchPostsResponse
+// 8. Credits Balance:      (no request) -> CreditsBalanceResponse
+//
+// Supporting Types:
+// - Person: Full person profile from enrich/search
+// - InsightsPerson: Simplified person object in company insights
+// - Company: Full company profile from enrich
+// - CompanySearchResult: Minimal company object from search
+// - PersonSearchResult: Minimal person object from search
+// - Professional NetworkPost: Post object with full metadata
+// - AttachedPost: Post object (simplified, used in reposts)
+// - Money, Employment, Education, Location, PhoneNumber: Common structures
+// - And 20+ other supporting interfaces for nested data
 
 export interface EnrichPersonRequest {
   email?: string | null;
@@ -251,7 +272,8 @@ export interface Money {
   value_usd: number | null;
 }
 
-export interface Person {
+// Used in Company Insights (simplified person object)
+export interface InsightsPerson {
   image: string | null;
   name: string | null;
   permalink: string | null;
@@ -263,7 +285,7 @@ export interface FundingRound {
   id: string | null;
   image: string | null;
   investor_count: number | null;
-  lead_investors: Person[];
+  lead_investors: InsightsPerson[];
   money_raised: Money;
 }
 
@@ -277,7 +299,7 @@ export interface NewsItem {
 }
 
 export interface Acquisition {
-  acquiree: Person;
+  acquiree: InsightsPerson;
   announced_on: string | null;
   price: Money;
 }
@@ -332,8 +354,8 @@ export interface CompanyInsights {
   funding_rounds_count: number | null;
   funding_total: Money;
   acquired_by: AcquiredBy;
-  employees: Person[];
-  investors: Person[];
+  employees: InsightsPerson[];
+  investors: InsightsPerson[];
   funding_rounds: FundingRound[];
   news: NewsItem[];
   similar_companies: Array<{ name: string | null; url: string | null }>;
