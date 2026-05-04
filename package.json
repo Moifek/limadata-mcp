@@ -1,15 +1,41 @@
 {
   "name": "limadata-mcp",
   "version": "0.1.0",
-  "description": "MCP server for Limadata API",
+  "description": "MCP server for Limadata API - enrich people/company data, search prospects, research companies in real-time",
   "type": "module",
   "main": "dist/server.js",
+  "bin": "dist/server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/limadata-mcp.git"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "limadata",
+    "lead-scoring",
+    "sales-intelligence",
+    "prospect-research",
+    "people-enrichment",
+    "company-enrichment",
+    "profnet"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    ".env.example"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node dist/server.js",
     "start": "node dist/server.js",
     "watch": "tsc --watch",
     "test": "bash test.sh",
+    "prepublishOnly": "npm run build",
     "docker:build": "docker build -t limadata-mcp:latest .",
     "docker:run": "docker run -e LIMADATA_API_KEY=$LIMADATA_API_KEY limadata-mcp:latest",
     "setup:claude-desktop": "bash scripts/setup-claude-desktop.sh"
