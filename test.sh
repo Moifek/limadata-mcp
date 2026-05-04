@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Integration test script for Limadata MCP server
-# Tests all 8 tools with publicly available values
-# Run this while 'npm start' is running in another terminal
+# Minimal smoke test - validates server is running without burning credits
+# For thorough testing, use Claude Desktop or test specific tools manually
 
 set -e
 
@@ -16,186 +15,48 @@ if [ -z "$LIMADATA_API_KEY" ]; then
     exit 1
 fi
 
-echo "🧪 Testing Limadata MCP Server (All 8 Tools)"
+echo "🧪 Limadata MCP Server - Smoke Test"
 echo "API Key: ${LIMADATA_API_KEY:0:10}..."
-echo "Note: Tests include 1-second delays to respect rate limits (1 req/sec)"
+echo "Note: Only testing Credits Balance (free) to avoid burning credits"
 echo
 
-# Test 1: Credits Balance (no input needed)
-echo "1️⃣  Testing: Get Credits Balance"
+# Single test: Credits Balance (0 credits, always works)
+echo "Testing: Get Credits Balance (free endpoint)"
 node -e "
 const { LiamataAPIClient } = require('./dist/client.js');
 const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
 client.getCreditsBalance()
-  .then(result => console.log('✓ Credits remaining:', result.balance))
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 2: Enrich Person (Bill Gates Professional Network)
-echo "2️⃣  Testing: Enrich Person (Professional Network URL)"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.enrichPerson({ profnet_url: 'https://www.profnet.com/in/williamhgates' })
   .then(result => {
-    const person = result.person;
-    console.log('✓ Person:', person.name);
-    console.log('  Headline:', person.headline);
-    console.log('  Current company:', person.employment?.company_name);
+    console.log('✓ Server is running');
+    console.log('✓ Authentication successful');
+    console.log('✓ Credits remaining:', result.balance);
+    process.exit(0);
   })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 3: Enrich Company (Microsoft)
-echo "3️⃣  Testing: Enrich Company"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.enrichCompany({ domain: 'microsoft.com' })
-  .then(result => {
-    const company = result.company;
-    console.log('✓ Company:', company.name);
-    console.log('  Website:', company.website);
-    console.log('  Employee range:', company.employees?.employee_range);
-    console.log('  Industry:', company.categories?.industry);
-  })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 4: Search Companies
-echo "4️⃣  Testing: Search Companies"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.searchCompanies({
-  query: 'technology',
-  company_size: 'F,G,H',
-  page: 1
-})
-  .then(result => {
-    console.log('✓ Found', result.companies?.length || 0, 'tech companies');
-    if (result.companies && result.companies.length > 0) {
-      console.log('  First:', result.companies[0].name);
-      console.log('  Industry:', result.companies[0].industry);
-      console.log('  Location:', result.companies[0].location);
-    }
-  })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 5: Search People
-echo "5️⃣  Testing: Search People"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.searchPeople({
-  query: 'software engineer',
-  page: 1
-})
-  .then(result => {
-    console.log('✓ Found', result.total_count, 'matching people');
-    if (result.people && result.people.length > 0) {
-      console.log('  First:', result.people[0].full_name);
-      console.log('  Headline:', result.people[0].headline);
-      console.log('  Location:', result.people[0].location);
-    }
-  })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 6: Company Insights (Amazon - well-established in Business Intelligence)
-echo "6️⃣  Testing: Company Insights"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.getCompanyInsights({ domain: 'amazon.com' })
-  .then(result => {
-    console.log('✓ Company:', result.name);
-    console.log('  Founded:', result.founded_date);
-    console.log('  Employee range:', result.employee_range);
-    console.log('  Funding rounds:', result.funding_rounds_count);
-    console.log('  Tech signals:', result.technology?.interest_signals?.length || 0);
-  })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 7: Get Professional Network Posts (Professional Network company - public, active)
-echo "7️⃣  Testing: Get Professional Network Posts"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.getProfessional NetworkPosts({
-  url: 'https://www.profnet.com/company/profnet',
-  max_results: 5
-})
-  .then(result => {
-    console.log('✓ Retrieved', result.posts?.length || 0, 'posts');
-    if (result.posts && result.posts.length > 0) {
-      const post = result.posts[0];
-      console.log('  Latest post by:', post.actor?.name);
-      console.log('  Posted on:', post.posted_on);
-      console.log('  Likes:', post.likes_count);
-      console.log('  Has pagination token:', !!result.pagination_token);
-    }
-  })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
-
-sleep 1
-
-# Test 8: Search Posts
-echo "8️⃣  Testing: Search Posts"
-node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
-client.searchPosts({
-  query: 'innovation',
-  page: 1,
-  sort_by_latest: false
-})
-  .then(result => {
-    console.log('✓ Found', result.total_count, 'posts about innovation');
-    if (result.posts && result.posts.length > 0) {
-      const post = result.posts[0];
-      console.log('  First post by:', post.actor?.name);
-      console.log('  Posted on:', post.posted_on);
-      console.log('  Engagement - Likes:', post.likes_count, 'Comments:', post.comments_count);
-      console.log('  Content type - Has images:', post.images?.length > 0, 'Has video:', post.videos?.length > 0);
-    }
-  })
-  .catch(err => console.error('✗ Error:', err.message));
-" || true
+  .catch(err => {
+    console.error('✗ Error:', err.message);
+    process.exit(1);
+  });
+" || exit 1
 
 echo
-echo "✅ All 8 tools tested!"
+echo "✅ Server is ready!"
 echo
-echo "Summary of test values used:"
-echo "  1. Credits Balance - No parameters"
-echo "  2. Enrich Person - Bill Gates Professional Network URL"
-echo "  3. Enrich Company - Microsoft domain (microsoft.com)"
-echo "  4. Search Companies - Query: 'technology', large companies (F,G,H)"
-echo "  5. Search People - Query: 'software engineer'"
-echo "  6. Company Insights - Amazon (amazon.com) - major public company in Business Intelligence"
-echo "  7. Get Professional Network Posts - Professional Network company profile (public, very active)"
-echo "  8. Search Posts - Query: 'innovation', sorted by relevance"
+echo "To test tools without burning credits:"
 echo
-echo "Test execution:"
-echo "  - 1 second delay between tests (respects rate limit: 1 req/sec)"
-echo "  - Tests continue even if one fails (|| true)"
-echo "  - Error messages show API response details"
+echo "  Option 1: Use Claude Desktop"
+echo "    npm run setup:claude-desktop"
+echo "    Then restart Claude Desktop and ask it to use the tools"
 echo
-echo "To test interactively:"
-echo "  - Use Claude Desktop (run: npm run setup:claude-desktop)"
-echo "  - Or run the server: npm start"
+echo "  Option 2: Test specific tools manually"
+echo "    node -e \"const c = require('./dist/client.js');\"  # etc"
+echo
+echo "  Option 3: See example calls in docs/"
+echo "    cat docs/QUICK_START.md"
+echo
+echo "Example tool calls (run one at a time):"
+echo "  - Enrich a person: enrich_person with Professional Network URL"
+echo "  - Search companies: search_companies with query"
+echo "  - Company insights: get_company_insights with domain"
+echo "  - Get posts: get_profnet_posts with Professional Network profile URL"
+echo
+echo "Each tool costs 1-5 credits per call. Use wisely!"
