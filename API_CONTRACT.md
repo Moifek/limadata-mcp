@@ -1,0 +1,384 @@
+# Limadata API Contract
+
+**Base URL:** `https://api.limadata.com`  
+**Authentication:** Bearer token via `x-api-key` header  
+**API Version:** v1/v2 (mixed)
+
+## Response Headers
+
+All responses include:
+- `x-credits-cost`: Number of credits used for request
+- `x-credits-remaining`: Credits remaining in account
+
+## Error Handling
+
+- **400** - Bad Request (no charge)
+- **401** - Unauthorized
+- **402** - Insufficient Credits (no charge)
+- **429** - Too Many Requests (no charge, apply backoff)
+- **5xx** - Server error (no charge, apply backoff)
+
+## Rate Limits
+
+- **Global:** 1 request/sec per account
+- **Exempt endpoints:** Enrich Person/Company, Credits Balance (higher concurrency allowed)
+
+---
+
+## Implemented Tools
+
+### 1. Enrich Person
+
+**Endpoint:** `POST /api/v1/enrich/person`
+
+**Description:** Enrich a person's professional profile using email, Professional Network URL, or name+company. Returns comprehensive profile data including work history, education, social profiles, and current company information.
+
+**Rate Limit:** Exempt from global rate limit
+
+**Credits:**
+- 1 credit: Professional Network URL or work email
+- 2 credits: Name + Company lookup
+- 5 credits: Personal email
+- +1 credit: Optional work email inclusion
+- +10 credits: Optional phone number inclusion
+
+**Request Body:**
+```typescript
+{
+  // Choose one of three identification methods:
+  
+  // Option 1: Email address (required with this method)
+  email?: string;                    // e.g., john.doe@company.com
+  
+  // Option 2: Name + Company (both required)
+  name?: string;                     // e.g., John Doe
+  company_name?: string;             // e.g., Microsoft
+  company_domain?: string;           // e.g., microsoft.com
+  
+  // Option 3: Professional Network URL
+  profnet_url?: string;             // e.g., https://profnet.com/in/johndoe
+  
+  // Optional enrichments
+  include_work_email?: boolean;      // Adds 1 credit if found
+  include_phone?: boolean;           // Adds 10 credits if found
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  person: {
+    name: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    headline: string | null;
+    about: string | null;
+    gender: string | null;
+    age_in_years: number | null;
+    location: {
+      city: string | null;
+      state: string | null;
+      country: string | null;
+      text: string | null;
+    };
+    emails: string[];
+    phone_numbers: Array<{
+      number: string | null;
+      type: string | null;
+    }>;
+    profnet: {
+      handle: string | null;
+      url: string | null;
+    };
+    github: {
+      handle: string | null;
+      url: string | null;
+    };
+    x: {
+      handle: string | null;
+      url: string | null;
+    };
+    facebook: {
+      handle: string | null;
+      url: string | null;
+    };
+    employment: {
+      title: string | null;
+      company_name: string | null;
+      company_domain: string | null;
+      location: string | null;
+      seniority: string | null;
+      start_date: string | null;
+      end_date: string | null;
+    };
+    education: {
+      degree_name: string | null;
+      school_name: string | null;
+      start_date: string | null;
+      end_date: string | null;
+    };
+    profile_image_url: string | null;
+  };
+  company: CompanyObject;
+}
+```
+
+---
+
+### 2. Enrich Company
+
+**Endpoint:** `POST /api/v1/enrich/company`
+
+**Description:** Enrich a company's profile using domain or Professional Network URL. Returns comprehensive firmographic data including industry, size, locations, funding, and social presence.
+
+**Rate Limit:** Exempt from global rate limit
+
+**Credits:** 1 credit per request
+
+**Request Body:**
+```typescript
+{
+  // At least one required
+  domain?: string;                   // e.g., microsoft.com or https://microsoft.com
+  profnet_url?: string;             // e.g., https://profnet.com/company/microsoft
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  company: CompanyObject;
+}
+```
+
+---
+
+### 3. Search People
+
+**Endpoint:** `POST /api/v1/search/people`
+
+**Description:** Search for people matching specified criteria. Used for prospecting and lead discovery.
+
+**Rate Limit:** Global (1 req/sec)
+
+**Credits:** Variable (check response headers)
+
+**Request Body:**
+```typescript
+{
+  // Filter criteria (combine as needed)
+  job_title?: string;
+  location?: string;
+  industry?: string;
+  company_size?: string;
+  company_domain?: string;
+  // Additional filters depend on API schema
+  
+  // Pagination
+  limit?: number;
+  offset?: number;
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  data: Array<PersonObject>;
+  total: number;
+  limit: number;
+  offset: number;
+}
+```
+
+---
+
+### 4. Search Companies
+
+**Endpoint:** `POST /api/v1/search/companies`
+
+**Description:** Search for companies matching specified criteria. Used for account-based marketing and company research.
+
+**Rate Limit:** Global (1 req/sec)
+
+**Credits:** Variable (check response headers)
+
+**Request Body:**
+```typescript
+{
+  // Filter criteria (combine as needed)
+  industry?: string;
+  employee_count?: string;
+  revenue_range?: string;
+  funding_stage?: string;
+  location?: string;
+  // Additional filters depend on API schema
+  
+  // Pagination
+  limit?: number;
+  offset?: number;
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  data: Array<CompanyObject>;
+  total: number;
+  limit: number;
+  offset: number;
+}
+```
+
+---
+
+### 5. Credits Balance
+
+**Endpoint:** `GET /api/v1/credits/balance`
+
+**Description:** Get current credit balance. Can also extract balance from `x-credits-remaining` header on any response.
+
+**Rate Limit:** Exempt from global rate limit
+
+**Credits:** No charge
+
+**Request:** No body, just authentication header
+
+**Response (200 OK):**
+```typescript
+{
+  balance: number;
+}
+```
+
+---
+
+## Type Definitions
+
+### CompanyObject
+
+```typescript
+{
+  name: string | null;
+  domain: string | null;
+  website: string | null;
+  logo_url: string | null;
+  founded_year: number | null;
+  type: string | null;
+  
+  employees: {
+    employee_count: number | null;
+    employee_range: string | null;
+    employee_growth_rate: number | null;
+  };
+  
+  emails: string[];
+  phones: string[];
+  tagline: string | null;
+  description: string | null;
+  
+  funding: {
+    total_amount: number | null;
+    round_count: number | null;
+    lead_investors: string[];
+    funding_rounds: Array<{
+      type: string | null;
+      amount: number | null;
+      amount_text: string | null;
+      date: string | null;
+      number_of_investors: number | null;
+    }>;
+  };
+  
+  profnet: {
+    handle: string | null;
+    url: string | null;
+    website: string | null;
+    follower_count: number | null;
+    logo_url: string | null;
+    cover_image_url: string | null;
+  };
+  
+  bizdata: {
+    handle: string | null;
+    url: string | null;
+  };
+  
+  facebook: {
+    handle: string | null;
+    url: string | null;
+  };
+  
+  x: {
+    handle: string | null;
+    url: string | null;
+  };
+  
+  locations: Array<{
+    street: string | null;
+    city: string | null;
+    state: string | null;
+    country: string | null;
+    postal_code: string | null;
+    is_hq: boolean | null;
+  }>;
+  
+  revenue: {
+    min: number | null;
+    max: number | null;
+    range: string | null;
+  };
+  
+  traffic: {
+    monthly_total: number | null;
+    monthly_organic: number | null;
+    monthly_paid: number | null;
+    monthly_google_ad_spend: number | null;
+  };
+  
+  apps: {
+    has_mobile_app: boolean | null;
+    has_web_app: boolean | null;
+    app_store: {
+      url: string | null;
+      rating: number | null;
+      review_count: number | null;
+      download_count: number | null;
+      category: string | null;
+    };
+    play_store: {
+      url: string | null;
+      rating: number | null;
+      review_count: number | null;
+      download_count: number | null;
+      category: string | null;
+    };
+  };
+  
+  categories: {
+    industry: string | null;
+    specialities: string[];
+    keywords: string[];
+    sic_codes: string[];
+    naics_codes: string[];
+  };
+  
+  technologies: {
+    categories: Record<string, string[]>;
+  };
+  
+  email_technology: {
+    hosting: string[];
+    security: string[];
+  };
+  
+  attributes: {
+    domain_tld: string | null;
+    is_website_working: boolean | null;
+    legal_type: string | null;
+  };
+}
+```
+
+### PersonObject
+
+Similar to person field in Enrich Person response.
