@@ -5,12 +5,22 @@ const DEFAULT_TIMEOUT = 30000;
 
 export class LiamataAPIClient {
   private apiKey: string;
+  private lastMetadata: Types.ResponseMetadata | null = null;
+  private requestHistory: Types.ResponseMetadata[] = [];
 
   constructor(apiKey: string) {
     if (!apiKey) {
       throw new Error("API key is required");
     }
     this.apiKey = apiKey;
+  }
+
+  getLastMetadata(): Types.ResponseMetadata | null {
+    return this.lastMetadata;
+  }
+
+  getRequestHistory(): Types.ResponseMetadata[] {
+    return this.requestHistory.slice(-5); // Last 5 requests
   }
 
   private async request<T>(
@@ -35,6 +45,20 @@ export class LiamataAPIClient {
     }
 
     const response = await fetch(url, options);
+
+    // Capture response metadata (headers)
+    const creditsCost = response.headers.get("x-credits-cost");
+    const creditsRemaining = response.headers.get("x-credits-remaining");
+
+    const metadata: Types.ResponseMetadata = {
+      creditsCost: creditsCost ? parseInt(creditsCost, 10) : null,
+      creditsRemaining: creditsRemaining ? parseInt(creditsRemaining, 10) : null,
+      timestamp: new Date(),
+      endpoint: path,
+    };
+
+    this.lastMetadata = metadata;
+    this.requestHistory.push(metadata);
 
     const data = await response.json() as T & { error?: unknown };
 

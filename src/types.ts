@@ -346,6 +346,13 @@ export interface CompanyInsightsRequest {
   domain?: string | null; // Company domain (if identifier not provided)
 }
 
+export interface ResponseMetadata {
+  creditsCost: number | null;
+  creditsRemaining: number | null;
+  timestamp: Date;
+  endpoint: string;
+}
+
 export interface APIError {
   status: number;
   message: string;

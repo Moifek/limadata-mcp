@@ -8,6 +8,7 @@ import {
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { LiamataAPIClient } from "./client.js";
 import * as Tools from "./tools.js";
+import { formatCreditsInfo } from "./utils.js";
 
 const API_KEY = process.env.LIMADATA_API_KEY;
 
@@ -39,6 +40,15 @@ const toolsList: Tool[] = [
   Tools.creditsBalanceTool,
 ];
 
+// Helper to format tool results with credits info
+function formatToolResult(result: string, includeCredits = true): string {
+  if (!includeCredits) {
+    return result;
+  }
+  const creditsInfo = formatCreditsInfo(client.getLastMetadata());
+  return result + creditsInfo;
+}
+
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: toolsList,
@@ -53,11 +63,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "enrich_person": {
         const validated = Tools.validateEnrichPersonInput(args as Record<string, unknown>);
         const result = await client.enrichPerson(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text,
             },
           ],
         };
@@ -66,11 +77,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "enrich_company": {
         const validated = Tools.validateEnrichCompanyInput(args as Record<string, unknown>);
         const result = await client.enrichCompany(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text,
             },
           ],
         };
@@ -79,11 +91,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "search_people": {
         const validated = Tools.validateSearchPeopleInput(args as Record<string, unknown>);
         const result = await client.searchPeople(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text,
             },
           ],
         };
@@ -92,11 +105,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "search_companies": {
         const validated = Tools.validateSearchCompaniesInput(args as Record<string, unknown>);
         const result = await client.searchCompanies(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text,
             },
           ],
         };
@@ -105,11 +119,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "get_company_insights": {
         const validated = Tools.validateCompanyInsightsInput(args as Record<string, unknown>);
         const result = await client.getCompanyInsights(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text,
             },
           ],
         };
@@ -117,11 +132,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "get_credits_balance": {
         const result = await client.getCreditsBalance();
+        const text = formatToolResult(
+          `Your Limadata account has ${result.balance} credits remaining.`,
+          false // Credits balance already includes metadata
+        );
         return {
           content: [
             {
               type: "text",
-              text: `Your Limadata account has ${result.balance} credits remaining.`,
+              text,
             },
           ],
         };
