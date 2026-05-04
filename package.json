@@ -8,7 +8,10 @@
     "build": "tsc",
     "dev": "tsc && node dist/server.js",
     "start": "node dist/server.js",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "docker:build": "docker build -t limadata-mcp:latest .",
+    "docker:run": "docker run -e LIMADATA_API_KEY=$LIMADATA_API_KEY limadata-mcp:latest",
+    "setup:claude-desktop": "bash scripts/setup-claude-desktop.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
