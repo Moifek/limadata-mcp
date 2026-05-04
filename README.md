@@ -4,13 +4,6 @@ A Model Context Protocol (MCP) server that wraps the Limadata API, enabling Clau
 
 **Perfect for:** Lead scoring workflows, sales intelligence, prospect research, company deep-dives.
 
-## Project Status
-
-**Stage:** Core implementation complete  
-**Version:** 0.1.0  
-**Created:** 2026-04-11  
-**Updated:** 2026-05-04
-
 ## What's Implemented
 
 ### 8 Production-Ready Tools
@@ -72,31 +65,29 @@ npm start
 src/
   ├── server.ts      # MCP server, tool handlers, credit formatting
   ├── client.ts      # HTTP client, response middleware, metadata tracking
-  ├── tools.ts       # 6 tool definitions + input validators
-  ├── types.ts       # TypeScript interfaces (25+ types)
+  ├── tools.ts       # 8 tool definitions + input validators
+  ├── types.ts       # TypeScript interfaces (40+ types)
   └── utils.ts       # Formatting utilities
 
-docs/
-  ├── README.md      # This file
-  ├── QUICK_START.md # Fastest path to running
-  ├── STRUCTURE.md   # Project layout & file purposes
-  ├── TECH.md        # Architecture & design decisions
-  ├── CLAUDE.md      # Development guide
+Documentation (root)
+  ├── README.md       # This file
+  ├── QUICK_START.md  # Local development setup
+  ├── CLAUDE.md       # Development guide (5-step pattern for new tools)
   ├── API_CONTRACT.md # Endpoint specifications
-  └── INTEGRATION.md  # Deployment options
+  ├── INTEGRATION.md  # Docker, systemd, production deployment
+  ├── TESTING.md      # Credit-conscious testing guide
+  └── PUBLISH.md      # NPM publishing notes
 
 Configuration
-  ├── package.json        # Dependencies & scripts
-  ├── tsconfig.json       # TypeScript config
-  ├── .env.example        # Environment template
-  ├── Dockerfile          # Container definition
-  └── docker-compose.yml  # Orchestration
+  ├── package.json
+  ├── tsconfig.json
+  ├── .env.example
+  ├── Dockerfile
+  └── docker-compose.yml
 
 Testing
-  └── test.sh  # Integration tests (5 tools)
+  └── test.sh         # Smoke test (Credits Balance, free)
 ```
-
-**See [STRUCTURE.md](STRUCTURE.md) for detailed file purposes and [TECH.md](TECH.md) for architecture decisions.**
 
 ## Features Highlights
 
@@ -133,28 +124,25 @@ All inputs validated before API calls:
 ### 📋 Well-Documented
 
 - API_CONTRACT.md — Every endpoint specified
-- TECH.md — Architecture & decisions
 - CLAUDE.md — How to extend with new tools
-- Inline comments — Why, not what
 
 ## Running Tests
 
 ```bash
-npm test        # Run all 6 tool tests
-npm run build   # Compile TypeScript (zero errors)
+npm test        # Smoke test (free — Credits Balance only)
+npm run build   # Compile TypeScript
 npm run watch   # Watch mode during development
 ```
 
+See [TESTING.md](TESTING.md) for credit-conscious manual test snippets per tool.
+
 ## Deployment Options
 
-| Method | Best For | Command |
-|--------|----------|---------|
-| Local NPM | Development | `npm start` |
+| Method | Best For | How |
+|--------|----------|-----|
+| Claude Desktop via npx | Daily use | See [Quick Start](#quick-start-via-npx) above |
 | Docker | Isolated, reproducible | `docker-compose up` |
-| Claude Desktop | Daily use | `npm run setup:claude-desktop` |
-| Production | Systemd/k8s | See INTEGRATION.md |
-
-**Full details:** [INTEGRATION.md](INTEGRATION.md)
+| Production | Systemd/k8s | See [INTEGRATION.md](INTEGRATION.md) |
 
 ## API Documentation
 
@@ -169,20 +157,3 @@ All endpoints documented in [API_CONTRACT.md](API_CONTRACT.md):
 
 Want to add a new tool? See [CLAUDE.md](CLAUDE.md) — pattern is predictable and copy-paste friendly.
 
-## Next Steps (Phase 2)
-
-- [ ] Batch API endpoints (POST /api/v2/batch/*)
-- [ ] Watch API (webhooks for buying signals)
-- [ ] Exponential backoff for rate limiting
-- [ ] Caching layer (in-memory or Redis)
-- [ ] Structured logging (JSON)
-- [ ] Metrics & observability
-
-## Code Quality
-
-✅ Zero TypeScript errors (strict mode)  
-✅ All inputs validated  
-✅ 100% type coverage  
-✅ Comprehensive error handling  
-✅ Clean architecture (3 layers)  
-✅ Request history for debugging
