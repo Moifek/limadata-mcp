@@ -342,7 +342,174 @@ All responses include:
 
 ---
 
-### 6. Credits Balance
+### 6. Get Professional Network Posts
+
+**Endpoint:** `GET /api/v2/posts`
+
+**Description:** Get Professional Network posts from a person or company profile with pagination support. Returns post content, engagement metrics, and metadata about the post author.
+
+**Rate Limit:** Global (1 req/sec)
+
+**Credits:** 1 credit per post (minimum 1 credit even if profile has no posts)
+
+**Query Parameters:**
+```typescript
+{
+  // Required
+  url: string;                       // Professional Network profile URL
+                                     // Person: https://www.profnet.com/in/username
+                                     // Company: https://www.profnet.com/company/name
+  
+  // Optional
+  max_results?: number;              // Maximum number of posts to return
+  
+  pagination_token?: string;         // Token to fetch next page of results
+                                     // Include pagination_token from previous response
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  pagination_token: string | null;   // Token for fetching next page
+  posts: Array<{
+    text: string | null;             // Post text content
+    url: string | null;              // Post URL
+    posted_on: string;               // ISO 8601 timestamp
+    actor: {
+      name: string | null;           // Author name
+      image_url: string | null;      // Author profile image
+      profile_url: string | null;    // Author Professional Network URL
+      headline: string | null;       // Author headline/title
+    };
+    links: string[];                 // URLs mentioned in post
+    images: string[];                // Image URLs in post
+    videos: Array<{
+      thumbnail: string | null;
+      url: string | null;
+      duration: number | null;       // Duration in seconds
+    }>;
+    article: {
+      title: string | null;
+      subtitle: string | null;
+      url: string | null;
+      image_url: string | null;
+    };
+    document: {
+      title: string | null;
+      url: string | null;
+    };
+    is_repost: boolean;              // Whether this is a repost
+    attached_post: {                 // Original post if this is a repost
+      text: string | null;
+      url: string | null;
+      posted_on: string;
+      actor: PostActor;
+      links: string[];
+      images: string[];
+      videos: Array<VideoObject>;
+    } | null;
+    likes_count: number;
+    comments_count: number;
+    reposts_count: number;
+    reaction_counts: Array<{
+      type: string | null;           // Reaction type (like, love, etc.)
+      count: number;
+    }>;
+    reactions_urn: string | null;    // URN for fetching reaction details
+    comments_urn: string | null;     // URN for fetching comment details
+  }>;
+}
+```
+
+---
+
+### 7. Search Posts
+
+**Endpoint:** `POST /api/v1/search/posts`
+
+**Description:** Search Professional Network posts by keywords with optional filters for content type, author, mentions, and sorting. Ideal for intent detection, competitive analysis, and content discovery.
+
+**Rate Limit:** Global (1 req/sec)
+
+**Credits:** 2 credits per request
+
+**Request Body:**
+```typescript
+{
+  // Required
+  query: string;                     // Search keywords (e.g., "AI Technology", "Digital Marketing")
+  
+  // Optional content filters
+  content_type?: string;             // Filter by content type:
+                                     // "photos", "videos", "liveVideos", 
+                                     // "collaborativeArticles", "documents"
+  
+  // Optional author filters
+  from_member?: string;              // Comma-separated Professional Network member URNs
+                                     // Posts by specific people
+                                     // Example: "ACoAAAX6LiQB..."
+  
+  from_organization?: string;        // Comma-separated Professional Network organization IDs
+                                     // Posts by specific companies
+                                     // Example: "1035,2414" for Microsoft & Professional Network
+  
+  author_job_title?: string;         // Filter by author job title
+                                     // Example: "CEO", "Software Engineer"
+  
+  author_company?: string;           // Comma-separated Professional Network company IDs
+                                     // Only posts from people at these companies
+                                     // Example: "1035" for Microsoft employees
+  
+  author_industry?: string;          // Comma-separated Professional Network industry URNs
+                                     // Example: "4" for Software Development
+  
+  // Optional mention filters
+  mentions_member?: string;          // Comma-separated Professional Network member URNs
+                                     // Posts mentioning specific people
+  
+  mentions_organization?: string;    // Comma-separated Professional Network organization IDs
+                                     // Posts mentioning specific companies
+  
+  // Pagination & sorting
+  page?: number;                     // Page number (1-100, default: 1)
+  
+  sort_by_latest?: boolean | null;   // Sort order:
+                                     // true = latest posts first
+                                     // false/null = most relevant first (default)
+}
+```
+
+**Response (200 OK):**
+```typescript
+{
+  total_count: number;               // Total matching posts
+  posts: Array<{
+    // Same structure as Get Professional Network Posts response
+    text: string | null;
+    url: string | null;
+    posted_on: string;
+    actor: PostActor;
+    links: string[];
+    images: string[];
+    videos: Array<VideoObject>;
+    article: ArticleObject;
+    document: DocumentObject;
+    is_repost: boolean;
+    attached_post: AttachedPost | null;
+    likes_count: number;
+    comments_count: number;
+    reposts_count: number;
+    reaction_counts: Array<ReactionCount>;
+    reactions_urn: string | null;
+    comments_urn: string | null;
+  }>;
+}
+```
+
+---
+
+### 8. Credits Balance
 
 **Endpoint:** `GET /api/v1/credits/balance`
 

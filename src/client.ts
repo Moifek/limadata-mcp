@@ -26,7 +26,7 @@ export class LiamataAPIClient {
   private async request<T>(
     method: string,
     path: string,
-    body?: Record<string, unknown>
+    body?: unknown
   ): Promise<T> {
     const url = `${BASE_URL}${path}`;
     const headers: Record<string, string> = {
@@ -99,8 +99,7 @@ export class LiamataAPIClient {
     return this.request<Types.SearchPeopleResponse>(
       "POST",
       "/api/v1/search/people",
-      request as unknown as Record<string, unknown>
-    );
+      request    );
   }
 
   async searchCompanies(
@@ -109,8 +108,7 @@ export class LiamataAPIClient {
     return this.request<Types.SearchCompaniesResponse>(
       "POST",
       "/api/v1/search/companies",
-      request as unknown as Record<string, unknown>
-    );
+      request    );
   }
 
   async getCreditsBalance(): Promise<Types.CreditsBalanceResponse> {
@@ -133,5 +131,31 @@ export class LiamataAPIClient {
 
     const url = `/api/v1/company/insights?${params.toString()}`;
     return this.request<Types.CompanyInsights>("GET", url);
+  }
+
+  async getProfessional NetworkPosts(
+    req: Types.GetProfessional NetworkPostsRequest
+  ): Promise<Types.GetProfessional NetworkPostsResponse> {
+    const params = new URLSearchParams();
+    params.append("url", req.url);
+    if (req.max_results !== undefined && req.max_results !== null) {
+      params.append("max_results", String(req.max_results));
+    }
+    if (req.pagination_token) {
+      params.append("pagination_token", req.pagination_token);
+    }
+
+    const url = `/api/v2/posts?${params.toString()}`;
+    return this.request<Types.GetProfessional NetworkPostsResponse>("GET", url);
+  }
+
+  async searchPosts(
+    req: Types.SearchPostsRequest
+  ): Promise<Types.SearchPostsResponse> {
+    return this.request<Types.SearchPostsResponse>(
+      "POST",
+      "/api/v1/search/posts",
+      req
+    );
   }
 }

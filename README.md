@@ -13,14 +13,16 @@ A Model Context Protocol (MCP) server that wraps the Limadata API, enabling Clau
 
 ## What's Implemented
 
-### 6 Production-Ready Tools
+### 8 Production-Ready Tools
 
 1. **enrich_person** — Profile enrichment by email/Professional Network/name+company (1-5 credits)
 2. **enrich_company** — Firmographic data by domain/Professional Network (1 credit)
 3. **search_people** — Targeted people search by title, location, industry (2 credits)
 4. **search_companies** — Company search by criteria (2 credits)
 5. **get_company_insights** — Deep research: funding, tech stack, investors, news (5 credits)
-6. **get_credits_balance** — Check account credits (free)
+6. **get_profnet_posts** — Get Professional Network posts from profiles with pagination (1 credit per post)
+7. **search_posts** — Search Professional Network posts by keywords and filters (2 credits)
+8. **get_credits_balance** — Check account credits (free)
 
 ### ✅ Features
 

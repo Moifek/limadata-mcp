@@ -302,3 +302,133 @@ export function validateSearchCompaniesInput(
     page: typeof page === "number" ? page : undefined,
   };
 }
+
+export const getProfessional NetworkPostsTool: Tool = {
+  name: "get_profnet_posts",
+  description: "Get Professional Network posts from a person or company profile with pagination support. Costs 1 credit per post (minimum 1 credit even for empty profiles).",
+  inputSchema: {
+    type: "object",
+    properties: {
+      url: {
+        type: "string",
+        description: "Professional Network profile URL (person: https://www.profnet.com/in/username or company: https://www.profnet.com/company/name)",
+      },
+      max_results: {
+        type: "integer",
+        description: "Optional maximum number of posts to return",
+      },
+      pagination_token: {
+        type: "string",
+        description: "Optional token to fetch next page of results",
+      },
+    },
+    required: ["url"],
+  },
+};
+
+export function validateGetProfessional NetworkPostsInput(
+  input: Record<string, unknown>
+): Types.GetProfessional NetworkPostsRequest {
+  const { url, max_results, pagination_token } = input;
+
+  if (!url || typeof url !== "string") {
+    throw new Error("'url' is required and must be a string (Professional Network profile URL)");
+  }
+
+  return {
+    url,
+    max_results: typeof max_results === "number" ? max_results : null,
+    pagination_token: pagination_token ? String(pagination_token) : null,
+  };
+}
+
+export const searchPostsTool: Tool = {
+  name: "search_posts",
+  description: "Search Professional Network posts by keywords with optional filters for content type, author, and sorting. Costs 2 credits per search.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      query: {
+        type: "string",
+        description: "Search query/keywords (required). Example: 'AI Technology' or 'Digital Marketing'",
+      },
+      author_company: {
+        type: "string",
+        description: "Optional filter by author's company (comma-separated Professional Network company IDs). Example: '1035,2414'",
+      },
+      author_industry: {
+        type: "string",
+        description: "Optional filter by author's industry (comma-separated Professional Network industry URNs). Example: '4' for Software Development",
+      },
+      author_job_title: {
+        type: "string",
+        description: "Optional filter by author's job title. Example: 'CEO' or 'Software Engineer'",
+      },
+      content_type: {
+        type: "string",
+        description: "Optional filter by content type: 'photos', 'videos', 'liveVideos', 'collaborativeArticles', or 'documents'",
+      },
+      from_member: {
+        type: "string",
+        description: "Optional filter by post author (person). Comma-separated Professional Network member URNs",
+      },
+      from_organization: {
+        type: "string",
+        description: "Optional filter by post author (organization). Comma-separated Professional Network organization IDs",
+      },
+      mentions_member: {
+        type: "string",
+        description: "Optional filter by mentioned members. Comma-separated Professional Network member URNs",
+      },
+      mentions_organization: {
+        type: "string",
+        description: "Optional filter by mentioned organizations. Comma-separated Professional Network organization IDs",
+      },
+      page: {
+        type: "number",
+        description: "Optional page number (1-100). Defaults to 1",
+      },
+      sort_by_latest: {
+        type: "boolean",
+        description: "Optional sort order. Set to true for latest posts, false/null for most relevant",
+      },
+    },
+    required: ["query"],
+  },
+};
+
+export function validateSearchPostsInput(
+  input: Record<string, unknown>
+): Types.SearchPostsRequest {
+  const {
+    query,
+    author_company,
+    author_industry,
+    author_job_title,
+    content_type,
+    from_member,
+    from_organization,
+    mentions_member,
+    mentions_organization,
+    page,
+    sort_by_latest,
+  } = input;
+
+  if (!query || typeof query !== "string") {
+    throw new Error("'query' is required and must be a string");
+  }
+
+  return {
+    query: String(query),
+    author_company: author_company ? String(author_company) : null,
+    author_industry: author_industry ? String(author_industry) : null,
+    author_job_title: author_job_title ? String(author_job_title) : null,
+    content_type: content_type ? String(content_type) : null,
+    from_member: from_member ? String(from_member) : null,
+    from_organization: from_organization ? String(from_organization) : null,
+    mentions_member: mentions_member ? String(mentions_member) : null,
+    mentions_organization: mentions_organization ? String(mentions_organization) : null,
+    page: typeof page === "number" ? page : null,
+    sort_by_latest: typeof sort_by_latest === "boolean" ? sort_by_latest : null,
+  };
+}

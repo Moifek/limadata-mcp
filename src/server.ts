@@ -37,6 +37,8 @@ const toolsList: Tool[] = [
   Tools.searchPeopleTool,
   Tools.searchCompaniesTool,
   Tools.companyInsightsTool,
+  Tools.getProfessional NetworkPostsTool,
+  Tools.searchPostsTool,
   Tools.creditsBalanceTool,
 ];
 
@@ -136,6 +138,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           `Your Limadata account has ${result.balance} credits remaining.`,
           false // Credits balance already includes metadata
         );
+        return {
+          content: [
+            {
+              type: "text",
+              text,
+            },
+          ],
+        };
+      }
+
+      case "get_profnet_posts": {
+        const validated = Tools.validateGetProfessional NetworkPostsInput(args as Record<string, unknown>);
+        const result = await client.getProfessional NetworkPosts(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
+        return {
+          content: [
+            {
+              type: "text",
+              text,
+            },
+          ],
+        };
+      }
+
+      case "search_posts": {
+        const validated = Tools.validateSearchPostsInput(args as Record<string, unknown>);
+        const result = await client.searchPosts(validated);
+        const text = formatToolResult(JSON.stringify(result, null, 2));
         return {
           content: [
             {

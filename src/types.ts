@@ -346,6 +346,96 @@ export interface CompanyInsightsRequest {
   domain?: string | null; // Company domain (if identifier not provided)
 }
 
+export interface PostActor {
+  name: string | null;
+  image_url: string | null;
+  profile_url: string | null;
+  headline: string | null;
+}
+
+export interface PostVideo {
+  thumbnail: string | null;
+  url: string | null;
+  duration: number | null;
+}
+
+export interface PostArticle {
+  title: string | null;
+  subtitle: string | null;
+  url: string | null;
+  image_url: string | null;
+}
+
+export interface PostDocument {
+  title: string | null;
+  url: string | null;
+}
+
+export interface ReactionCount {
+  type: string | null;
+  count: number;
+}
+
+export interface AttachedPost {
+  text: string | null;
+  url: string | null;
+  posted_on: string; // ISO date
+  actor: PostActor;
+  links: string[];
+  images: string[];
+  videos: PostVideo[];
+}
+
+export interface Professional NetworkPost {
+  text: string | null;
+  url: string | null;
+  posted_on: string; // ISO date
+  actor: PostActor;
+  links: string[];
+  images: string[];
+  videos: PostVideo[];
+  article: PostArticle;
+  document: PostDocument;
+  is_repost: boolean;
+  attached_post: AttachedPost | null;
+  likes_count: number;
+  comments_count: number;
+  reposts_count: number;
+  reaction_counts: ReactionCount[];
+  reactions_urn: string | null;
+  comments_urn: string | null;
+}
+
+export interface GetProfessional NetworkPostsRequest {
+  url: string; // Professional Network profile URL (person or company)
+  max_results?: number | null;
+  pagination_token?: string | null;
+}
+
+export interface GetProfessional NetworkPostsResponse {
+  pagination_token: string | null;
+  posts: Professional NetworkPost[];
+}
+
+export interface SearchPostsRequest {
+  query: string; // Search query/keywords
+  author_company?: string | null; // Comma-separated Professional Network company IDs
+  author_industry?: string | null; // Comma-separated Professional Network industry URNs
+  author_job_title?: string | null; // Job title keywords
+  content_type?: string | null; // photos, videos, liveVideos, collaborativeArticles, documents
+  from_member?: string | null; // Comma-separated Professional Network member URNs
+  from_organization?: string | null; // Comma-separated Professional Network organization IDs
+  mentions_member?: string | null; // Comma-separated Professional Network member URNs
+  mentions_organization?: string | null; // Comma-separated Professional Network organization IDs
+  page?: number | null; // Page number (1-100)
+  sort_by_latest?: boolean | null; // true for latest, false/null for most relevant
+}
+
+export interface SearchPostsResponse {
+  total_count: number;
+  posts: Professional NetworkPost[];
+}
+
 export interface ResponseMetadata {
   creditsCost: number | null;
   creditsRemaining: number | null;
