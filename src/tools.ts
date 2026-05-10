@@ -319,4 +319,679 @@ Args:
       };
     }
   );
+
+  // ── find_work_email ────────────────────────────────────────────────────────
+  server.registerTool(
+    "find_work_email",
+    {
+      title: "Find Work Email",
+      description: `Find the most likely business email address for a person given their full name and company domain.
+Returns 404 (no charge) if not found.
+
+Credits: 1 on success · 0 on 404
+
+Args:
+  - full_name (required): Person's full name (e.g. "William Gates")
+  - company_domain (required): Company domain (e.g. "microsoft.com")`,
+      inputSchema: {
+        full_name: z.string().min(1).describe("Person's full name (e.g. William Gates)"),
+        company_domain: z.string().min(1).describe("Company domain (e.g. microsoft.com)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.findWorkEmail({ full_name: params.full_name, company_domain: params.company_domain });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── find_phone_number ──────────────────────────────────────────────────────
+  server.registerTool(
+    "find_phone_number",
+    {
+      title: "Find Phone Number",
+      description: `Find phone numbers for a person from a Professional Network URL or via name + company.
+Returns 404 (no charge) if not found.
+
+Credits: 10 when found · 0 on 404 — ALWAYS confirm with the user before calling.
+
+Input (choose one):
+  - Option 1: profnet_url
+  - Option 2: name + company_name and/or company_domain`,
+      inputSchema: z.object({
+        profnet_url: z.string().optional().describe("Professional Network profile URL"),
+        name: z.string().optional().describe("Person's full name — use with company fields"),
+        company_name: z.string().optional().describe("Company name — use with name"),
+        company_domain: z.string().optional().describe("Company domain — use with name"),
+      }).refine(
+        (d) => d.profnet_url || (d.name && (d.company_name || d.company_domain)),
+        "Provide profnet_url, or name + company_name/company_domain"
+      ),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.findPhone({
+        profnet_url: params.profnet_url ?? null,
+        name: params.name ?? null,
+        company_name: params.company_name ?? null,
+        company_domain: params.company_domain ?? null,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── resolve_identity ───────────────────────────────────────────────────────
+  server.registerTool(
+    "resolve_identity",
+    {
+      title: "Resolve Identity",
+      description: `Find a person's social profile URLs (Professional Network, GitHub, X, Facebook) by name + company or email.
+Charged on every call including 404s. Supports partial names (e.g. "Bill G").
+
+Credits: 2 per call (always charged, even on 404)
+
+Args:
+  - full_name (required): Person's name — can be partial
+  - company_domain: Increases match accuracy (e.g. "microsoft.com")
+  - company_name: Alternative to domain (e.g. "Microsoft")
+  - email: Work email — used as an additional signal
+
+Provide full_name + at least one of company_name, company_domain, or email.`,
+      inputSchema: z.object({
+        full_name: z.string().min(1).describe("Person's full name (supports partials like 'Bill G')"),
+        company_domain: z.string().optional().describe("Company domain for accuracy (e.g. microsoft.com)"),
+        company_name: z.string().optional().describe("Company name (e.g. Microsoft)"),
+        email: z.string().optional().describe("Work email address"),
+      }).refine(
+        (d) => d.company_domain || d.company_name || d.email,
+        "Provide at least one of company_domain, company_name, or email alongside full_name"
+      ),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.resolveIdentity({
+        full_name: params.full_name,
+        company_domain: params.company_domain ?? null,
+        company_name: params.company_name ?? null,
+        email: params.email ?? null,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── find_company_profnet ──────────────────────────────────────────────────
+  server.registerTool(
+    "find_company_profnet",
+    {
+      title: "Find Company Professional Network",
+      description: `Find the Professional Network page URL for a company given its domain.
+Returns 404 (no charge) if not found.
+
+Credits: Low-cost lookup (exact cost not specified in docs) · 0 on 404
+
+Args:
+  - domain (required): Company domain (e.g. "microsoft.com" or "https://microsoft.com")`,
+      inputSchema: {
+        domain: z.string().min(1).describe("Company domain (e.g. microsoft.com)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.findCompanyProfessional Network({ domain: params.domain });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── reverse_email_lookup ───────────────────────────────────────────────────
+  server.registerTool(
+    "reverse_email_lookup",
+    {
+      title: "Reverse Email Lookup",
+      description: `Find Professional Network, GitHub, and X profile URLs from a person's email address.
+Works with both work and personal emails.
+
+Credits: 5 when a profile is found · 0 on 404 (default: 404 if Professional Network not found)
+
+require_* flags control what counts as a hit:
+  - require_profnet=true (default): 404 if Professional Network not found (free)
+  - require_x=true: 404 if X not found (free)
+  - Both false: always pay 5 credits on any result
+
+Args:
+  - email (required): Person's work or personal email
+  - require_profnet: Return 404 (free) if Professional Network not found (default true)
+  - require_x: Return 404 (free) if X not found`,
+      inputSchema: {
+        email: z.string().min(1).describe("Person's email address (work or personal)"),
+        require_profnet: z.boolean().optional().describe("Return 404 (free) if Professional Network not found (default true)"),
+        require_x: z.boolean().optional().describe("Return 404 (free) if X not found"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.reverseEmailLookup({
+        email: params.email,
+        require_profnet: params.require_profnet ?? null,
+        require_x: params.require_x ?? null,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── get_company ────────────────────────────────────────────────────────────
+  server.registerTool(
+    "get_company",
+    {
+      title: "Get Company (Professional Network)",
+      description: `Get company profile data from a Professional Network company URL.
+Returns headcount, industry, funding, locations, and more.
+
+Credits: 1 (cached, default) · 3 with live=true (real-time from Professional Network)
+
+IMPORTANT — live flag: Always default to live=false. Only use live=true if the user explicitly
+asks for current/up-to-date data (e.g. "current headcount", "did they just raise?", "latest info").
+Ask before using live=true: "This will use 3 credits instead of 1 — proceed?"
+
+Args:
+  - url (required): Professional Network company URL (e.g. https://profnet.com/company/microsoft)
+  - live: true = real-time (3 credits), false/omit = cached (1 credit)`,
+      inputSchema: {
+        url: z.string().describe("Professional Network company URL (e.g. https://profnet.com/company/microsoft)"),
+        live: z.boolean().optional().describe("true = real-time from Professional Network (3 credits), false/omit = cached (1 credit)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.getCompany({ url: params.url, live: params.live ?? null });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── get_company_jobs ───────────────────────────────────────────────────────
+  server.registerTool(
+    "get_company_jobs",
+    {
+      title: "Get Company Jobs",
+      description: `Get Professional Network job listings for a company. Returns 20 results per page.
+
+Credits: 2 per request
+
+Args:
+  - url (required): Professional Network company profile URL (e.g. https://profnet.com/company/microsoft)
+  - page: Page number starting from 1`,
+      inputSchema: {
+        url: z.string().describe("Professional Network company profile URL (e.g. https://profnet.com/company/microsoft)"),
+        page: z.number().int().min(1).optional().describe("Page number (starting from 1)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.getCompanyJobs({ url: params.url, page: params.page ?? null });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── prospect_companies_filter ──────────────────────────────────────────────
+  server.registerTool(
+    "prospect_companies_filter",
+    {
+      title: "Prospect Companies (Filter)",
+      description: `Advanced company prospecting with granular filters. Up to 25 results/page, max 60 pages.
+Results are live Professional Network Sales Navigator data.
+
+Credits: 25 per request — ALWAYS confirm with the user before calling.
+"This will use 25 credits for a live Professional Network prospect search — proceed?"
+
+Filter types: company_headcount, company_headquarters, industry, number_of_followers, fortune,
+recent_activities, job_opportunities, company_headcount_growth (between), annual_revenue (between),
+department_headcount (between), department_headcount_growth (between), keywords
+
+Filter object:
+  { filter_type, operator ("in"/"not_in"/"between"), values (string[]), range_value ({ sub_filter?, min, max }) }
+
+Args:
+  - filters (required): Array of filter objects
+  - page: 1–60 (default 1, 25 results per page)`,
+      inputSchema: {
+        filters: z.array(z.object({
+          filter_type: z.string().describe("Filter type (e.g. industry, company_headcount)"),
+          operator: z.string().nullable().optional().describe("in | not_in | between | null (boolean filters)"),
+          values: z.array(z.string()).nullable().optional().describe("Array of values (null for between/boolean filters)"),
+          range_value: z.object({
+            sub_filter: z.string().optional().describe("Required for some range types (e.g. currency for annual_revenue)"),
+            min: z.number(),
+            max: z.number(),
+          }).nullable().optional().describe("Only for between operator"),
+        })).describe("Array of filter objects (AND'd together)"),
+        page: z.number().int().min(1).max(60).optional().describe("Page number 1–60 (25 results per page)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.prospectCompaniesFilter({
+        filters: params.filters,
+        page: params.page,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── prospect_companies_by_url ──────────────────────────────────────────────
+  server.registerTool(
+    "prospect_companies_by_url",
+    {
+      title: "Prospect Companies (by Sales Navigator URL)",
+      description: `Prospect companies using a Professional Network Sales Navigator Account Search URL.
+Build your search in Sales Navigator's UI, then pass the URL here. Up to 25 results/page, max 60 pages.
+
+Credits: 25 per request — ALWAYS confirm with the user before calling.
+"This will use 25 credits for a live Professional Network prospect search — proceed?"
+
+Args:
+  - search_url (required): Professional Network Sales Navigator company search URL
+  - page: 1–60 (optional)`,
+      inputSchema: {
+        search_url: z.string().describe("Professional Network Sales Navigator company search URL"),
+        page: z.number().int().min(1).max(60).optional().describe("Page number 1–60 (optional)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.prospectCompaniesByUrl({ search_url: params.search_url, page: params.page });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── prospect_people_filter ─────────────────────────────────────────────────
+  server.registerTool(
+    "prospect_people_filter",
+    {
+      title: "Prospect People (Filter)",
+      description: `Advanced people prospecting with granular filters. Up to 25 results/page, max 100 pages.
+Results are live Professional Network Sales Navigator data.
+
+Credits: 25 per request — ALWAYS confirm with the user before calling.
+"This will use 25 credits for a live Professional Network prospect search — proceed?"
+
+Filter types: company, company_past, company_headcount, company_type, company_headquarters, function,
+current_title, seniority, past_title, years_in_current_company, years_in_current_position,
+year_of_experience, location, industry, first_name, last_name, profile_language, school,
+recently_changed_jobs (boolean — omit operator/values), posted_on_linked_in (boolean), keywords
+
+Filter object:
+  { filter_type, operator ("in"/"not_in"), values (string[]) }
+  Boolean filters: { filter_type } only (no operator/values)
+
+Args:
+  - filters (required): Array of filter objects
+  - page: 1–100
+  - settings_match_all_company_urls: true = all company URLs must resolve before returning results`,
+      inputSchema: {
+        filters: z.array(z.object({
+          filter_type: z.string().describe("Filter type (e.g. current_title, seniority, company)"),
+          operator: z.string().nullable().optional().describe("in | not_in | null (boolean filters)"),
+          values: z.array(z.string()).nullable().optional().describe("Filter values (null for boolean filters)"),
+          range_value: z.object({
+            sub_filter: z.string().optional(),
+            min: z.number(),
+            max: z.number(),
+          }).nullable().optional(),
+        })).describe("Array of filter objects (AND'd together)"),
+        page: z.number().int().min(1).max(100).optional().describe("Page number 1–100 (25 results per page)"),
+        settings_match_all_company_urls: z.boolean().nullable().optional().describe("true = wait for all company URLs to resolve"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.prospectPeopleFilter({
+        filters: params.filters,
+        page: params.page,
+        settings_match_all_company_urls: params.settings_match_all_company_urls ?? null,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── prospect_people_by_url ─────────────────────────────────────────────────
+  server.registerTool(
+    "prospect_people_by_url",
+    {
+      title: "Prospect People (by Sales Navigator URL)",
+      description: `Prospect people using a Professional Network Sales Navigator Leads Search URL.
+Build your search in Sales Navigator's UI, then pass the URL here. Up to 25 results/page, max 100 pages.
+
+Credits: 25 per request — ALWAYS confirm with the user before calling.
+"This will use 25 credits for a live Professional Network prospect search — proceed?"
+
+Args:
+  - search_url (required): Professional Network Sales Navigator leads search URL
+  - page: 1–100 (optional)`,
+      inputSchema: {
+        search_url: z.string().describe("Professional Network Sales Navigator leads search URL"),
+        page: z.number().int().min(1).max(100).optional().describe("Page number 1–100 (optional)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.prospectPeopleByUrl({ search_url: params.search_url, page: params.page });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── prospect_employees ─────────────────────────────────────────────────────
+  server.registerTool(
+    "prospect_employees",
+    {
+      title: "Prospect Employees",
+      description: `Get current employees of a company for prospecting or candidate sourcing.
+All filter params are optional. Up to 25 results/page, max 100 pages.
+
+Credits: 25 per request — ALWAYS confirm with the user before calling.
+"This will use 25 credits for a live Professional Network prospect search — proceed?"
+
+Args:
+  - url (required): Professional Network company profile URL (e.g. https://profnet.com/company/microsoft)
+  - keyword: Keyword filter across employee profiles
+  - titles: Job title filters (array, e.g. ["Head of Marketing", "Marketing Manager"])
+  - locations: Location filters (array, e.g. ["United States"])
+  - seniorities: Seniority filters (array, e.g. ["Director", "Vice President"])
+  - recently_changed_jobs: Filter for employees who recently changed jobs
+  - page: 1–100`,
+      inputSchema: {
+        url: z.string().describe("Professional Network company profile URL (e.g. https://profnet.com/company/microsoft)"),
+        keyword: z.string().nullable().optional().describe("Keyword filter across employee profiles"),
+        titles: z.array(z.string()).optional().describe("Job title filters (e.g. ['Head of Marketing'])"),
+        locations: z.array(z.string()).optional().describe("Location filters (e.g. ['United States'])"),
+        seniorities: z.array(z.string()).optional().describe("Seniority filters (e.g. ['Director', 'Vice President'])"),
+        recently_changed_jobs: z.boolean().nullable().optional().describe("Filter for employees who recently changed jobs"),
+        page: z.number().int().min(1).max(100).optional().describe("Page number 1–100"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.prospectEmployees({
+        url: params.url,
+        keyword: params.keyword ?? null,
+        titles: params.titles,
+        locations: params.locations,
+        seniorities: params.seniorities,
+        recently_changed_jobs: params.recently_changed_jobs ?? null,
+        page: params.page,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── create_watch ───────────────────────────────────────────────────────────
+  server.registerTool(
+    "create_watch",
+    {
+      title: "Create Watch",
+      description: `Create a persistent Professional Network monitoring subscription that fires webhooks when changes occur.
+Credits are consumed per-profile at check time (not at creation). CRUD operations cost 0 credits.
+
+Watch types:
+  - PersonJobChanges: fires when person's company changes (3 credits/profile/check)
+  - PersonProfileUpdates: fires on any profile field change (3 credits/profile/check)
+  - PersonSocialPosts: fires on new post (2 credits/profile/check)
+  - CompanySocialPosts: fires on new company post (2 credits/company/check)
+  - CompanyJobPosts: fires on new job listing (2 credits/company/check)
+
+Scheduling: checks begin 24 hours after creation, repeat every frequency_days.
+First run: PersonSocialPosts/CompanySocialPosts notify about last 7 days; CompanyJobPosts last 14 days.
+
+Args:
+  - name (required): Watch name (max 200 chars)
+  - type (required): One of the 5 watch type values above
+  - notification_url (required): HTTPS webhook endpoint
+  - frequency_days (required): 1–60 days between checks
+  - settings: { people_urls: string[] } for person types, { company_urls: string[] } for company types
+  - external_id: Your own tenant/client ID (max 500 chars)`,
+      inputSchema: z.object({
+        name: z.string().max(200).describe("Watch name (max 200 chars)"),
+        type: z.enum(["PersonJobChanges", "PersonProfileUpdates", "PersonSocialPosts", "CompanySocialPosts", "CompanyJobPosts"]).describe("Watch type"),
+        notification_url: z.string().url().describe("HTTPS webhook endpoint"),
+        frequency_days: z.number().int().min(1).max(60).describe("Days between checks (1–60)"),
+        external_id: z.string().max(500).optional().describe("Your tenant/client ID (max 500 chars)"),
+        settings: z.object({
+          people_urls: z.array(z.string()).min(1).max(10000).optional().describe("Professional Network profile URLs (for person-based types)"),
+          company_urls: z.array(z.string()).min(1).max(10000).optional().describe("Professional Network company URLs (for company-based types)"),
+        }).nullable().optional().describe("URLs to monitor (required for person/company types)"),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    },
+    async (params) => {
+      const result = await client.createWatch({
+        name: params.name,
+        type: params.type,
+        notification_url: params.notification_url,
+        frequency_days: params.frequency_days,
+        external_id: params.external_id ?? null,
+        settings: params.settings ?? null,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── list_watches ───────────────────────────────────────────────────────────
+  server.registerTool(
+    "list_watches",
+    {
+      title: "List Watches",
+      description: `List all watch subscriptions for your account.
+
+Credits: 0
+
+Args:
+  - page: Page number (1-indexed, default 1)`,
+      inputSchema: {
+        page: z.number().int().min(1).optional().describe("Page number (default 1)"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async (params) => {
+      const result = await client.listWatches({ page: params.page ?? null });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── get_watch ──────────────────────────────────────────────────────────────
+  server.registerTool(
+    "get_watch",
+    {
+      title: "Get Watch",
+      description: `Get a watch subscription by ID.
+
+Credits: 0
+
+Args:
+  - id (required): Watch ID (integer)`,
+      inputSchema: {
+        id: z.number().int().describe("Watch ID"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async (params) => {
+      const result = await client.getWatch(params.id);
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── update_watch ───────────────────────────────────────────────────────────
+  server.registerTool(
+    "update_watch",
+    {
+      title: "Update Watch",
+      description: `Update a watch subscription's configuration.
+Only name, notification_url, frequency_days, is_active, and external_id can be modified.
+Watch type and monitored URLs cannot be changed — create a new watch instead.
+
+Credits: 0
+
+is_active — pause and resume:
+  There is no delete endpoint. Use is_active to stop/start a watch:
+  - is_active=false: pause (no more checks or webhooks until reactivated)
+  - is_active=true: resume (checks restart on next scheduled interval)
+  Natural language mapping:
+  - "stop", "pause", "disable", "turn off" → is_active: false
+  - "start", "resume", "enable", "turn on" → is_active: true
+
+Args:
+  - id (required): Watch ID to update
+  - name: New name (max 200 chars)
+  - notification_url: New webhook URL
+  - frequency_days: New check interval (1–60)
+  - is_active: false=pause, true=resume
+  - external_id: Your tenant/client ID`,
+      inputSchema: z.object({
+        id: z.number().int().describe("Watch ID to update"),
+        name: z.string().max(200).optional().describe("New watch name"),
+        notification_url: z.string().nullable().optional().describe("New webhook endpoint URL"),
+        frequency_days: z.number().int().min(1).max(60).optional().describe("New check interval in days (1–60)"),
+        is_active: z.boolean().nullable().optional().describe("false=pause watch, true=resume watch"),
+        external_id: z.string().max(500).optional().describe("Your tenant/client ID"),
+      }),
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async (params) => {
+      const result = await client.updateWatch({
+        id: params.id,
+        name: params.name,
+        notification_url: params.notification_url ?? undefined,
+        frequency_days: params.frequency_days,
+        is_active: params.is_active ?? null,
+        external_id: params.external_id,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── get_watch_mock_payload ─────────────────────────────────────────────────
+  server.registerTool(
+    "get_watch_mock_payload",
+    {
+      title: "Get Watch Mock Payload",
+      description: `Get a sample webhook payload for a given watch type.
+Use to validate your webhook endpoint and test signature verification before creating a real watch.
+
+Credits: 0
+
+Args:
+  - type (required): One of PersonJobChanges, PersonProfileUpdates, PersonSocialPosts, CompanySocialPosts, CompanyJobPosts`,
+      inputSchema: {
+        type: z.enum(["PersonJobChanges", "PersonProfileUpdates", "PersonSocialPosts", "CompanySocialPosts", "CompanyJobPosts"]).describe("Watch type to get mock payload for"),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    async (params) => {
+      const result = await client.getMockWatchPayload(params.type);
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── database_search_company ────────────────────────────────────────────────
+  server.registerTool(
+    "database_search_company",
+    {
+      title: "Database Search Company (BETA)",
+      description: `Search Limadata's company database using AI prompt, structured filters, or a filter expression.
+BETA: Requires Limadata to enable access on your account. Credits not specified — confirm before large queries.
+
+Query modes (pass exactly one):
+  1. ai_prompt — natural language: "SaaS companies in the US with 100-500 employees"
+  2. filters — structured enum filters: [{ filter_type, includes, excludes }]
+  3. filter_expression — expression syntax: "headquarters_country_name=United States, employee_count_min>100"
+
+Expression operators: = != < > <= >= =* (contains) !* (not contains) ^ (starts with) $ (ends with) , (AND) | (OR) () (group)
+Never wrap values in quotes: field=Software Development NOT field="Software Development"
+
+Key filter fields: company_name, domain, headquarters_country_name (Enum), industry_profnet (Enum),
+employee_count_min/max (int), employee_count_range (Enum), revenue_range (Enum), all_tech (Enum), founded (number)
+
+Args:
+  - ai_prompt: Natural language query (Mode 1)
+  - filters: Structured filter array (Mode 2) — each: { filter_type, includes?, excludes? }
+  - filter_expression: Expression string (Mode 3)
+  - max_records: 1–10,000 (default 10)
+  - include_total: Include exact total count (adds latency, default false)`,
+      inputSchema: z.object({
+        ai_prompt: z.string().nullable().optional().describe("Natural language company search (Mode 1)"),
+        filters: z.array(z.object({
+          filter_type: z.string().describe("Field name from available fields table"),
+          includes: z.array(z.string()).optional().describe("Values to match"),
+          excludes: z.array(z.string()).optional().describe("Values to exclude"),
+        })).nullable().optional().describe("Structured enum filters (Mode 2)"),
+        filter_expression: z.string().nullable().optional().describe("Filter expression string (Mode 3)"),
+        max_records: z.number().int().min(1).max(10000).optional().describe("Max results to return (default 10, max 10,000)"),
+        include_total: z.boolean().optional().describe("Include exact total count (adds latency, default false)"),
+      }).refine(
+        (d) => [d.ai_prompt, d.filters, d.filter_expression].filter(Boolean).length === 1,
+        "Pass exactly one of: ai_prompt, filters, or filter_expression"
+      ),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.databaseSearchCompany({
+        ai_prompt: params.ai_prompt ?? null,
+        filters: params.filters ?? null,
+        filter_expression: params.filter_expression ?? null,
+        max_records: params.max_records,
+        include_total: params.include_total,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
+
+  // ── database_search_people ─────────────────────────────────────────────────
+  server.registerTool(
+    "database_search_people",
+    {
+      title: "Database Search People (BETA)",
+      description: `Search Limadata's people database using AI prompt, structured filters, or a filter expression.
+BETA: Requires Limadata to enable access on your account. Credits not specified — confirm before large queries.
+
+Query modes (pass exactly one):
+  1. ai_prompt — natural language: "Software engineers in the US at companies with 51-200 employees"
+  2. filters — structured enum filters: [{ filter_type, includes, excludes }]
+  3. filter_expression — expression syntax: "country_name=United States, job_title^Engineer, org_employee_count_range=51-200"
+
+Key filter fields: full_name, first_name, last_name, profnet_url, profnet_headline,
+job_title (string), job_function (Enum), job_level (Enum), job_is_current (boolean),
+country_name (Enum), city, org_company_name, org_domain, org_industry_profnet (Enum),
+org_employee_count_range (Enum), org_revenue_range (Enum)
+Note: All company fields for people are prefixed with org_
+
+Args:
+  - ai_prompt: Natural language query (Mode 1)
+  - filters: Structured filter array (Mode 2)
+  - filter_expression: Expression string (Mode 3)
+  - max_records: 1–10,000 (default 10)
+  - include_total: Include exact total count (adds latency, default false)`,
+      inputSchema: z.object({
+        ai_prompt: z.string().nullable().optional().describe("Natural language people search (Mode 1)"),
+        filters: z.array(z.object({
+          filter_type: z.string().describe("Field name from available fields table"),
+          includes: z.array(z.string()).optional().describe("Values to match"),
+          excludes: z.array(z.string()).optional().describe("Values to exclude"),
+        })).nullable().optional().describe("Structured enum filters (Mode 2)"),
+        filter_expression: z.string().nullable().optional().describe("Filter expression string (Mode 3)"),
+        max_records: z.number().int().min(1).max(10000).optional().describe("Max results to return (default 10, max 10,000)"),
+        include_total: z.boolean().optional().describe("Include exact total count (adds latency, default false)"),
+      }).refine(
+        (d) => [d.ai_prompt, d.filters, d.filter_expression].filter(Boolean).length === 1,
+        "Pass exactly one of: ai_prompt, filters, or filter_expression"
+      ),
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    },
+    async (params) => {
+      const result = await client.databaseSearchPeople({
+        ai_prompt: params.ai_prompt ?? null,
+        filters: params.filters ?? null,
+        filter_expression: params.filter_expression ?? null,
+        max_records: params.max_records,
+        include_total: params.include_total,
+      });
+      return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
+    }
+  );
 }

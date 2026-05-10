@@ -458,6 +458,417 @@ export interface SearchPostsResponse {
   posts: Professional NetworkPost[];
 }
 
+// ── Find endpoints ────────────────────────────────────────────────────────────
+
+export interface FindWorkEmailRequest {
+  full_name: string;
+  company_domain: string;
+}
+
+export interface FindWorkEmailResponse {
+  email: string | null;
+}
+
+export interface FindPhoneRequest {
+  profnet_url?: string | null;
+  name?: string | null;
+  company_name?: string | null;
+  company_domain?: string | null;
+}
+
+export interface FindPhoneResponse {
+  phone_numbers: PhoneNumber[];
+}
+
+export interface ResolveIdentityRequest {
+  full_name: string;
+  company_domain?: string | null;
+  company_name?: string | null;
+  email?: string | null;
+}
+
+export interface ResolveIdentityResponse {
+  profnet_url: string | null;
+  github_url: string | null;
+  x_url: string | null;
+  facebook_url: string | null;
+}
+
+export interface FindCompanyProfessional NetworkRequest {
+  domain: string;
+}
+
+export interface FindCompanyProfessional NetworkResponse {
+  profnet_url: string | null;
+}
+
+export interface ReverseEmailLookupRequest {
+  email: string;
+  require_profnet?: boolean | null;
+  require_x?: boolean | null;
+}
+
+export interface ReverseEmailLookupResponse {
+  profnet_url: string | null;
+  github_url: string | null;
+  x_url: string | null;
+  facebook_url: string | null;
+}
+
+// ── Company endpoints ──────────────────────────────────────────────────────────
+
+export interface GetCompanyRequest {
+  url: string;
+  live?: boolean | null;
+}
+
+export interface Professional NetworkCompanyFundingRound {
+  name: string | null;
+  amount_text: string | null;
+  amount: number | null;
+  currency: string | null;
+  url: string | null;
+  date: string | null;
+}
+
+export interface Professional NetworkCompanyInvestor {
+  name: string | null;
+  url: string | null;
+  logo_url: string | null;
+}
+
+export interface Professional NetworkCompanyFunding {
+  bizdata_url: string | null;
+  rounds: number | null;
+  last_funding_round: Professional NetworkCompanyFundingRound;
+  investors: Professional NetworkCompanyInvestor[];
+}
+
+export interface Professional NetworkCompanyHeadquarters {
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  text: string | null;
+}
+
+export interface Professional NetworkCompanyLocation {
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+  country: string | null;
+  is_hq: boolean | null;
+}
+
+export interface Professional NetworkCompany {
+  id: string | null;
+  name: string | null;
+  public_identifier: string | null;
+  profile_url: string | null;
+  domain: string | null;
+  website: string | null;
+  founded_year: number | null;
+  industries: string[];
+  tagline: string | null;
+  description: string | null;
+  employee_count: number;
+  company_size: string | null;
+  company_type: string | null;
+  follower_count: number;
+  profile_image_url: string | null;
+  cover_image_url: string | null;
+  specialities: string[];
+  headquarters: Professional NetworkCompanyHeadquarters;
+  locations: Professional NetworkCompanyLocation[];
+  funding: Professional NetworkCompanyFunding;
+}
+
+export interface GetCompanyJobsRequest {
+  url: string;
+  page?: number | null;
+}
+
+export interface JobHiringTeamMember {
+  full_name: string | null;
+  profile_url: string | null;
+  image_url: string | null;
+  headline: string | null;
+}
+
+export interface JobCompany {
+  id: string | null;
+  name: string | null;
+  url: string | null;
+  logo_url: string | null;
+  employee_count: number | null;
+}
+
+export interface JobListing {
+  id: string | null;
+  url: string | null;
+  title: string | null;
+  company_name: string | null;
+  company: JobCompany;
+  location: string | null;
+  country: string | null;
+  employment_status: string | null;
+  experience_level: string | null;
+  industries: string | null;
+  description: string | null;
+  benefits: string | null;
+  company_apply_url: string | null;
+  easy_apply_url: string | null;
+  listed_at: string | null;
+  hiring_team: JobHiringTeamMember[];
+}
+
+export interface GetCompanyJobsResponse {
+  total_count: number;
+  jobs: JobListing[];
+}
+
+// ── Prospect endpoints ─────────────────────────────────────────────────────────
+
+export interface ProspectorRangeValue {
+  sub_filter?: string;
+  min: number;
+  max: number;
+}
+
+export interface ProspectorRequestFilter {
+  filter_type: string;
+  operator?: string | null;
+  values?: string[] | null;
+  range_value?: ProspectorRangeValue | null;
+}
+
+export interface ProspectPersonPosition {
+  company_name: string | null;
+  company_domain: string | null;
+  title: string | null;
+  profile_url: string | null;
+  company_slug_url: string | null;
+  image_url: string | null;
+  company_id: string | null;
+  is_current: boolean | null;
+  started_at_position: string | null;
+  started_at_company: string | null;
+}
+
+export interface ProspectPersonResult {
+  full_name: string | null;
+  profile_url: string | null;
+  headline: string | null;
+  location: string | null;
+  image_url: string | null;
+  position: ProspectPersonPosition;
+}
+
+export interface ProspectCompanyResult {
+  company_name: string | null;
+  company_domain: string | null;
+  profile_url: string | null;
+  company_id: string | null;
+  image_url: string | null;
+  description: string | null;
+  industry: string | null;
+  employee_count_range: string | null;
+  employee_count: number | null;
+}
+
+export interface ProspectCompaniesFilterRequest {
+  filters: ProspectorRequestFilter[];
+  page?: number;
+}
+
+export interface ProspectCompaniesResponse {
+  total_count: number;
+  companies: ProspectCompanyResult[];
+}
+
+export interface ProspectCompaniesByUrlRequest {
+  search_url: string;
+  page?: number;
+}
+
+export interface ProspectPeopleFilterRequest {
+  filters: ProspectorRequestFilter[];
+  page?: number;
+  settings_match_all_company_urls?: boolean | null;
+}
+
+export interface ProspectPeopleResponse {
+  total_count: number;
+  people: ProspectPersonResult[];
+}
+
+export interface ProspectPeopleByUrlRequest {
+  search_url: string;
+  page?: number;
+}
+
+export interface ProspectEmployeesRequest {
+  url: string;
+  keyword?: string | null;
+  titles?: string[];
+  locations?: string[];
+  seniorities?: string[];
+  recently_changed_jobs?: boolean | null;
+  page?: number;
+}
+
+// ── Watch API ──────────────────────────────────────────────────────────────────
+
+export type WatchType =
+  | "PersonJobChanges"
+  | "PersonProfileUpdates"
+  | "PersonSocialPosts"
+  | "CompanySocialPosts"
+  | "CompanyJobPosts";
+
+export interface WatchResponse {
+  id: number;
+  name: string | null;
+  type: WatchType;
+  notification_url: string | null;
+  frequency_days: number;
+  is_active: boolean;
+}
+
+export interface WatchSettings {
+  people_urls?: string[];
+  company_urls?: string[];
+}
+
+export interface CreateWatchRequest {
+  name: string;
+  type: WatchType;
+  notification_url: string;
+  frequency_days: number;
+  external_id?: string | null;
+  settings?: WatchSettings | null;
+}
+
+export interface ListWatchesRequest {
+  page?: number | null;
+}
+
+export interface ListWatchesResponse {
+  watches: WatchResponse[];
+}
+
+export interface UpdateWatchRequest {
+  id: number;
+  name?: string;
+  notification_url?: string | null;
+  frequency_days?: number;
+  is_active?: boolean | null;
+  external_id?: string;
+}
+
+// ── Database endpoints (BETA) ──────────────────────────────────────────────────
+
+export interface DbProspectFilter {
+  filter_type: string;
+  includes?: string[];
+  excludes?: string[];
+}
+
+export interface DatabaseSearchCompanyRequest {
+  ai_prompt?: string | null;
+  filters?: DbProspectFilter[] | null;
+  filter_expression?: string | null;
+  max_records?: number;
+  include_total?: boolean;
+}
+
+export interface DatabaseSearchPeopleRequest {
+  ai_prompt?: string | null;
+  filters?: DbProspectFilter[] | null;
+  filter_expression?: string | null;
+  max_records?: number;
+  include_total?: boolean;
+}
+
+export interface DbPersonExperienceRole {
+  title: string | null;
+  location: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+}
+
+export interface DbPersonExperience {
+  company: string | null;
+  title: string | null;
+  location: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  company_id: string | null;
+  profile_url: string | null;
+  logo_url: string | null;
+  description: string | null;
+  employment_type: string | null;
+  workplace_type: string | null;
+  skills: string[];
+  roles: DbPersonExperienceRole[];
+}
+
+export interface DbPersonEducation {
+  school: string | null;
+  degree_name: string | null;
+  field_of_study: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  school_id: string | null;
+  logo_url: string | null;
+  profile_url: string | null;
+}
+
+export interface DbPersonCertification {
+  name: string | null;
+  issuer: string | null;
+  issued_at: string | null;
+  expires_at: string | null;
+  credential_id: string | null;
+}
+
+export interface DbPersonResult {
+  full_name: string | null;
+  profile_url: string | null;
+  urn: string | null;
+  website: string | null;
+  connections: number | null;
+  followers: number | null;
+  premium: boolean | null;
+  verified: boolean | null;
+  open_to_work: boolean | null;
+  hiring: boolean | null;
+  headline: string | null;
+  about: string | null;
+  location: Location;
+  profile_image_url: string | null;
+  cover_image_url: string | null;
+  experiences: DbPersonExperience[];
+  educations: DbPersonEducation[];
+  languages: Array<{ name: string | null; proficiency: string | null }>;
+  certifications: DbPersonCertification[];
+  skills: Array<{ name: string | null }>;
+  recommendations: Array<{
+    type: string | null;
+    name: string | null;
+    profile_url: string | null;
+    text: string | null;
+  }>;
+}
+
+export interface DatabaseSearchPeopleResponse {
+  total_records: number | null;
+  filter_expression: string | null;
+  results: DbPersonResult[];
+}
+
+// ── Shared metadata ────────────────────────────────────────────────────────────
+
 export interface ResponseMetadata {
   creditsCost: number | null;
   creditsRemaining: number | null;

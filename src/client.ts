@@ -173,4 +173,184 @@ export class LimadataAPIClient {
       req
     );
   }
+
+  // ── Find endpoints ───────────────────────────────────────────────────────────
+
+  async findWorkEmail(
+    req: Types.FindWorkEmailRequest
+  ): Promise<Types.FindWorkEmailResponse> {
+    return this.request<Types.FindWorkEmailResponse>(
+      "POST",
+      "/api/v1/find/email_work",
+      req
+    );
+  }
+
+  async findPhone(
+    req: Types.FindPhoneRequest
+  ): Promise<Types.FindPhoneResponse> {
+    return this.request<Types.FindPhoneResponse>(
+      "POST",
+      "/api/v1/find/phone",
+      req
+    );
+  }
+
+  async resolveIdentity(
+    req: Types.ResolveIdentityRequest
+  ): Promise<Types.ResolveIdentityResponse> {
+    return this.request<Types.ResolveIdentityResponse>(
+      "POST",
+      "/api/v1/find/profiles_person",
+      req
+    );
+  }
+
+  async findCompanyProfessional Network(
+    req: Types.FindCompanyProfessional NetworkRequest
+  ): Promise<Types.FindCompanyProfessional NetworkResponse> {
+    return this.request<Types.FindCompanyProfessional NetworkResponse>(
+      "POST",
+      "/api/v1/find/pages_company",
+      req
+    );
+  }
+
+  async reverseEmailLookup(
+    req: Types.ReverseEmailLookupRequest
+  ): Promise<Types.ReverseEmailLookupResponse> {
+    return this.request<Types.ReverseEmailLookupResponse>(
+      "POST",
+      "/api/v1/find/reverse_email_lookup",
+      req
+    );
+  }
+
+  // ── Company endpoints ────────────────────────────────────────────────────────
+
+  async getCompany(
+    req: Types.GetCompanyRequest
+  ): Promise<Types.Professional NetworkCompany> {
+    const params = new URLSearchParams();
+    params.append("url", req.url);
+    if (req.live !== undefined && req.live !== null) {
+      params.append("live", String(req.live));
+    }
+    return this.request<Types.Professional NetworkCompany>("GET", `/api/v1/company?${params.toString()}`);
+  }
+
+  async getCompanyJobs(
+    req: Types.GetCompanyJobsRequest
+  ): Promise<Types.GetCompanyJobsResponse> {
+    const params = new URLSearchParams();
+    params.append("url", req.url);
+    if (req.page !== undefined && req.page !== null) {
+      params.append("page", String(req.page));
+    }
+    return this.request<Types.GetCompanyJobsResponse>("GET", `/api/v1/jobs?${params.toString()}`);
+  }
+
+  // ── Prospect endpoints ───────────────────────────────────────────────────────
+
+  async prospectCompaniesFilter(
+    req: Types.ProspectCompaniesFilterRequest
+  ): Promise<Types.ProspectCompaniesResponse> {
+    return this.request<Types.ProspectCompaniesResponse>(
+      "POST",
+      "/api/v2/prospect/live/companies/filter",
+      req
+    );
+  }
+
+  async prospectCompaniesByUrl(
+    req: Types.ProspectCompaniesByUrlRequest
+  ): Promise<Types.ProspectCompaniesResponse> {
+    return this.request<Types.ProspectCompaniesResponse>(
+      "POST",
+      "/api/v2/prospect/live/companies/search_url",
+      req
+    );
+  }
+
+  async prospectPeopleFilter(
+    req: Types.ProspectPeopleFilterRequest
+  ): Promise<Types.ProspectPeopleResponse> {
+    return this.request<Types.ProspectPeopleResponse>(
+      "POST",
+      "/api/v2/prospect/live/people/filter",
+      req
+    );
+  }
+
+  async prospectPeopleByUrl(
+    req: Types.ProspectPeopleByUrlRequest
+  ): Promise<Types.ProspectPeopleResponse> {
+    return this.request<Types.ProspectPeopleResponse>(
+      "POST",
+      "/api/v1/prospect/live/people/search_url",
+      req
+    );
+  }
+
+  async prospectEmployees(
+    req: Types.ProspectEmployeesRequest
+  ): Promise<Types.ProspectPeopleResponse> {
+    return this.request<Types.ProspectPeopleResponse>(
+      "POST",
+      "/api/v2/prospect/live/people/employees",
+      req
+    );
+  }
+
+  // ── Watch API ────────────────────────────────────────────────────────────────
+
+  async createWatch(
+    req: Types.CreateWatchRequest
+  ): Promise<Types.WatchResponse> {
+    return this.request<Types.WatchResponse>("POST", "/api/v1/watch", req);
+  }
+
+  async listWatches(
+    req: Types.ListWatchesRequest
+  ): Promise<Types.ListWatchesResponse> {
+    const params = new URLSearchParams();
+    if (req.page !== undefined && req.page !== null) {
+      params.append("page", String(req.page));
+    }
+    const qs = params.toString();
+    return this.request<Types.ListWatchesResponse>("GET", `/api/v1/watch${qs ? `?${qs}` : ""}`);
+  }
+
+  async getWatch(id: number): Promise<Types.WatchResponse> {
+    return this.request<Types.WatchResponse>("GET", `/api/v1/watch/${id}`);
+  }
+
+  async updateWatch(
+    req: Types.UpdateWatchRequest
+  ): Promise<Types.WatchResponse> {
+    const { id, ...body } = req;
+    return this.request<Types.WatchResponse>("PUT", `/api/v1/watch/${id}`, body);
+  }
+
+  async getMockWatchPayload(type: string): Promise<unknown> {
+    return this.request<unknown>("GET", `/api/v1/watch/mock_payload?type=${encodeURIComponent(type)}`);
+  }
+
+  // ── Database endpoints (BETA) ────────────────────────────────────────────────
+
+  async databaseSearchCompany(
+    req: Types.DatabaseSearchCompanyRequest
+  ): Promise<unknown> {
+    return this.request<unknown>("POST", "/api/v1/database/search_company", req);
+  }
+
+  async databaseSearchPeople(
+    req: Types.DatabaseSearchPeopleRequest
+  ): Promise<Types.DatabaseSearchPeopleResponse> {
+    return this.request<Types.DatabaseSearchPeopleResponse>(
+      "POST",
+      "/api/v1/database/search_people",
+      req
+    );
+  }
 }
