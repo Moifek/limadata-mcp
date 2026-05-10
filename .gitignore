@@ -1,6 +1,10 @@
 node_modules/
 dist/
+build/
+*.dxt
+*.mcpb
 .env
 .env.local
 *.log
 .DS_Store
+app_docs/
