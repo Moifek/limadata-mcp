@@ -3,7 +3,7 @@
   "manifest_version": "0.4",
   "name": "limadata-mcp",
   "display_name": "Limadata",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Enrich people and companies, prospect leads, monitor Professional Network changes, and search with the Limadata API.",
   "long_description": "Exposes 27 Limadata tools to Claude: enrich, search, prospect, watch/monitor, find emails/phones/profiles, company lookup, database search (BETA), and credits balance. Get an API key at https://app.limadata.com/settings/apikeys.",
   "author": {
