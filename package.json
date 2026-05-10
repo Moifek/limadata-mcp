@@ -1,6 +1,6 @@
 {
   "name": "limadata-mcp",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "MCP server for Limadata API - enrich people/company data, search prospects, research companies in real-time",
   "type": "module",
   "main": "dist/server.js",
@@ -36,13 +36,18 @@
     "watch": "tsc --watch",
     "test": "bash test.sh",
     "prepublishOnly": "npm run build",
-    "setup:claude-desktop": "bash scripts/setup-claude-desktop.sh"
+    "setup:claude-desktop": "bash scripts/setup-claude-desktop.sh",
+    "dxt:validate": "mcpb validate manifest.json",
+    "dxt:stage": "rm -rf build/dxt && mkdir -p build/dxt && cp -r dist build/dxt/ && cp manifest.json package.json build/dxt/ && (cp icon.png build/dxt/ 2>/dev/null || true) && cd build/dxt && npm install --omit=dev --ignore-scripts --no-audit --no-fund",
+    "dxt:pack": "npm run build && npm run dxt:stage && mcpb pack build/dxt limadata-mcp.dxt"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
     "@types/node": "^20.10.0",
     "typescript": "^5.3.3"
   }

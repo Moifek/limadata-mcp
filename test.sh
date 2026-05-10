@@ -23,8 +23,8 @@ echo
 # Single test: Credits Balance (0 credits, always works)
 echo "Testing: Get Credits Balance (free endpoint)"
 node -e "
-const { LiamataAPIClient } = require('./dist/client.js');
-const client = new LiamataAPIClient(process.env.LIMADATA_API_KEY);
+const { LimadataAPIClient } = require('./dist/client.js');
+const client = new LimadataAPIClient(process.env.LIMADATA_API_KEY);
 client.getCreditsBalance()
   .then(result => {
     console.log('✓ Server is running');

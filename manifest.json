@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/dxt/main/dist/dxt-manifest.schema.json",
+  "manifest_version": "0.4",
+  "name": "limadata-mcp",
+  "display_name": "Limadata",
+  "version": "0.2.0",
+  "description": "Enrich people and companies, search Professional Network posts, and check credits via the Limadata API.",
+  "long_description": "Exposes 8 Limadata tools to Claude: enrich_person, enrich_company, search_people, search_companies, get_company_insights, get_profnet_posts, search_posts, and get_credits_balance. Get an API key at https://app.limadata.com/settings/apikeys.",
+  "author": {
+    "name": "Moifek Maiza",
+    "email": "Mouafak.Maiza@proton.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moifek/limadata-mcp.git"
+  },
+  "homepage": "https://github.com/moifek/limadata-mcp",
+  "license": "MIT",
+  "keywords": [
+    "limadata",
+    "profnet",
+    "enrichment",
+    "sales-intelligence",
+    "lead-scoring",
+    "people-search",
+    "company-search"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/server.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/server.js"],
+      "env": {
+        "LIMADATA_API_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Limadata API Key",
+      "description": "Get one at https://app.limadata.com/settings/apikeys",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "tools": [
+    { "name": "enrich_person", "description": "Enrich a professional profile by email, Professional Network URL, or name+company." },
+    { "name": "enrich_company", "description": "Enrich a company profile by domain or Professional Network URL." },
+    { "name": "search_people", "description": "Search for people with keyword filters." },
+    { "name": "search_companies", "description": "Search for companies with filters." },
+    { "name": "get_company_insights", "description": "Get company insights by identifier or domain." },
+    { "name": "get_profnet_posts", "description": "Fetch Professional Network posts for a profile URL." },
+    { "name": "search_posts", "description": "Search Professional Network posts by keywords." },
+    { "name": "get_credits_balance", "description": "Check remaining credits on the Limadata account." }
+  ],
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

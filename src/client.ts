@@ -3,7 +3,7 @@ import * as Types from "./types.js";
 const BASE_URL = "https://api.limadata.com";
 const DEFAULT_TIMEOUT = 30000;
 
-export class LiamataAPIClient {
+export class LimadataAPIClient {
   private apiKey: string;
   private lastMetadata: Types.ResponseMetadata | null = null;
   private requestHistory: Types.ResponseMetadata[] = [];
@@ -20,7 +20,7 @@ export class LiamataAPIClient {
   }
 
   getRequestHistory(): Types.ResponseMetadata[] {
-    return this.requestHistory.slice(-5); // Last 5 requests
+    return this.requestHistory.slice();
   }
 
   private async request<T>(
@@ -34,17 +34,12 @@ export class LiamataAPIClient {
       "x-api-key": this.apiKey,
     };
 
-    const options: RequestInit & { timeout?: number } = {
+    const response = await fetch(url, {
       method,
       headers,
-      timeout: DEFAULT_TIMEOUT,
-    };
-
-    if (body) {
-      options.body = JSON.stringify(body);
-    }
-
-    const response = await fetch(url, options);
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT),
+    });
 
     // Capture response metadata (headers)
     const creditsCost = response.headers.get("x-credits-cost");
@@ -59,6 +54,7 @@ export class LiamataAPIClient {
 
     this.lastMetadata = metadata;
     this.requestHistory.push(metadata);
+    if (this.requestHistory.length > 5) this.requestHistory.shift();
 
     let data;
     try {
@@ -72,15 +68,19 @@ export class LiamataAPIClient {
 
     if (!response.ok) {
       const apiError = data as unknown as Record<string, unknown>;
-      const errorMessage =
+      const bodyMessage =
         typeof data.error === "string"
           ? data.error
           : typeof apiError.detail === "string"
           ? apiError.detail
           : typeof apiError.message === "string"
           ? apiError.message
-          : `HTTP ${response.status}`;
-      throw new Error(errorMessage);
+          : null;
+
+      if (response.status === 401) throw new Error("Invalid API key. Set LIMADATA_API_KEY correctly.");
+      if (response.status === 402) throw new Error("Insufficient credits. Check balance with get_credits_balance.");
+      if (response.status === 429) throw new Error("Rate limit exceeded. Wait 1 second before retrying.");
+      throw new Error(bodyMessage ?? `HTTP ${response.status}`);
     }
 
     return data;
@@ -112,7 +112,8 @@ export class LiamataAPIClient {
     return this.request<Types.SearchPeopleResponse>(
       "POST",
       "/api/v1/search/people",
-      request    );
+      request
+    );
   }
 
   async searchCompanies(
@@ -121,7 +122,8 @@ export class LiamataAPIClient {
     return this.request<Types.SearchCompaniesResponse>(
       "POST",
       "/api/v1/search/companies",
-      request    );
+      request
+    );
   }
 
   async getCreditsBalance(): Promise<Types.CreditsBalanceResponse> {

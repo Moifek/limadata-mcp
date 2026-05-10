@@ -280,7 +280,7 @@ export interface InsightsPerson {
   title: string | null;
 }
 
-export interface FundingRound {
+export interface InsightsFundingRound {
   announced_on: string | null;
   id: string | null;
   image: string | null;
@@ -356,7 +356,7 @@ export interface CompanyInsights {
   acquired_by: AcquiredBy;
   employees: InsightsPerson[];
   investors: InsightsPerson[];
-  funding_rounds: FundingRound[];
+  funding_rounds: InsightsFundingRound[];
   news: NewsItem[];
   similar_companies: Array<{ name: string | null; url: string | null }>;
   technology: TechnologyInsights;
