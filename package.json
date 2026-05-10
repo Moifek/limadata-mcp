@@ -1,7 +1,7 @@
 {
   "name": "limadata-mcp",
   "version": "1.0.1",
-  "description": "MCP server for Limadata API - enrich people/company data, search prospects, research companies in real-time",
+  "description": "MCP server for Limadata API — 27 tools: enrich, find emails/phones, prospect, watch Professional Network, database search",
   "type": "module",
   "main": "dist/server.js",
   "bin": "dist/server.js",
