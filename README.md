@@ -1,4 +1,4 @@
-# Limadata MCP Server
+# Limadata MCP Server (Community)
 
 A Model Context Protocol (MCP) server that gives Claude access to the Limadata API — enrich people and companies, find emails and phones, prospect leads, monitor Professional Network changes, and search databases.
 
@@ -44,8 +44,6 @@ Restart Claude Desktop after saving.
 |------|-------------|---------|
 | `search_people` | People search by title, location, industry, and more | 2 |
 | `search_companies` | Company search by size, location, industry | 2 |
-| `search_posts` | Professional Network post search by keywords and filters | 2 |
-| `get_profnet_posts` | Posts from a Professional Network person or company profile | 1/post |
 
 ### Find
 | Tool | Description | Credits |
@@ -62,24 +60,6 @@ Restart Claude Desktop after saving.
 | `get_company` | Professional Network company profile by URL (cached or live) | 1 / 3 live |
 | `get_company_jobs` | Job listings for a Professional Network company page | 2 |
 | `get_company_insights` | Deep research: funding, investors, tech stack, news | 5 |
-
-### Prospect (live Professional Network Sales Navigator data)
-| Tool | Description | Credits |
-|------|-------------|---------|
-| `prospect_companies_filter` | Advanced company prospecting with granular filters | 25 |
-| `prospect_companies_by_url` | Prospect companies from a Sales Navigator URL | 25 |
-| `prospect_people_filter` | Advanced people prospecting with granular filters | 25 |
-| `prospect_people_by_url` | Prospect people from a Sales Navigator URL | 25 |
-| `prospect_employees` | Current employees of a company | 25 |
-
-### Watch (Professional Network monitoring)
-| Tool | Description | Credits |
-|------|-------------|---------|
-| `create_watch` | Create a subscription that fires webhooks on Professional Network changes | 0 (credits at check time) |
-| `list_watches` | List all watch subscriptions | 0 |
-| `get_watch` | Get a watch by ID | 0 |
-| `update_watch` | Update or pause/resume a watch | 0 |
-| `get_watch_mock_payload` | Sample webhook payload for testing | 0 |
 
 ### Database (BETA)
 | Tool | Description | Credits |
