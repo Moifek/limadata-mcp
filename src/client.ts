@@ -148,9 +148,9 @@ export class LimadataAPIClient {
     return this.request<Types.CompanyInsights>("GET", url);
   }
 
-  async getProfessional NetworkPosts(
-    req: Types.GetProfessional NetworkPostsRequest
-  ): Promise<Types.GetProfessional NetworkPostsResponse> {
+  async getProfNetPosts(
+    req: Types.GetProfNetPostsRequest
+  ): Promise<Types.GetProfNetPostsResponse> {
     const params = new URLSearchParams();
     params.append("url", req.url);
     if (req.max_results !== undefined && req.max_results !== null) {
@@ -161,7 +161,7 @@ export class LimadataAPIClient {
     }
 
     const url = `/api/v2/posts?${params.toString()}`;
-    return this.request<Types.GetProfessional NetworkPostsResponse>("GET", url);
+    return this.request<Types.GetProfNetPostsResponse>("GET", url);
   }
 
   async searchPosts(
@@ -206,10 +206,10 @@ export class LimadataAPIClient {
     );
   }
 
-  async findCompanyProfessional Network(
-    req: Types.FindCompanyProfessional NetworkRequest
-  ): Promise<Types.FindCompanyProfessional NetworkResponse> {
-    return this.request<Types.FindCompanyProfessional NetworkResponse>(
+  async findCompanyProfNet(
+    req: Types.FindCompanyProfNetRequest
+  ): Promise<Types.FindCompanyProfNetResponse> {
+    return this.request<Types.FindCompanyProfNetResponse>(
       "POST",
       "/api/v1/find/pages_company",
       req
@@ -230,13 +230,13 @@ export class LimadataAPIClient {
 
   async getCompany(
     req: Types.GetCompanyRequest
-  ): Promise<Types.Professional NetworkCompany> {
+  ): Promise<Types.ProfNetCompany> {
     const params = new URLSearchParams();
     params.append("url", req.url);
     if (req.live !== undefined && req.live !== null) {
       params.append("live", String(req.live));
     }
-    return this.request<Types.Professional NetworkCompany>("GET", `/api/v1/company?${params.toString()}`);
+    return this.request<Types.ProfNetCompany>("GET", `/api/v1/company?${params.toString()}`);
   }
 
   async getCompanyJobs(

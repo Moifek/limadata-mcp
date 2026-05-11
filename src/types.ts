@@ -6,7 +6,7 @@
 // 3. Search People:        SearchPeopleRequest -> SearchPeopleResponse
 // 4. Search Companies:     SearchCompaniesRequest -> SearchCompaniesResponse
 // 5. Company Insights:     CompanyInsightsRequest -> CompanyInsights
-// 6. Get Professional Network Posts:   GetProfessional NetworkPostsRequest -> GetProfessional NetworkPostsResponse
+// 6. Get Professional Network Posts:   GetProfNetPostsRequest -> GetProfNetPostsResponse
 // 7. Search Posts:         SearchPostsRequest -> SearchPostsResponse
 // 8. Credits Balance:      (no request) -> CreditsBalanceResponse
 //
@@ -16,7 +16,7 @@
 // - Company: Full company profile from enrich
 // - CompanySearchResult: Minimal company object from search
 // - PersonSearchResult: Minimal person object from search
-// - Professional NetworkPost: Post object with full metadata
+// - ProfNetPost: Post object with full metadata
 // - AttachedPost: Post object (simplified, used in reposts)
 // - Money, Employment, Education, Location, PhoneNumber: Common structures
 // - And 20+ other supporting interfaces for nested data
@@ -26,14 +26,14 @@ export interface EnrichPersonRequest {
   name?: string | null;
   company_name?: string | null;
   company_domain?: string | null;
-  profnet_url?: string | null;
+  linkedin_url?: string | null;
   include_work_email?: boolean | null;
   include_phone?: boolean | null;
 }
 
 export interface EnrichCompanyRequest {
   domain?: string | null;
-  profnet_url?: string | null;
+  linkedin_url?: string | null;
 }
 
 export interface Location {
@@ -53,7 +53,7 @@ export interface SocialProfile {
   url: string | null;
 }
 
-export interface Professional NetworkProfile extends SocialProfile {
+export interface ProfNetProfile extends SocialProfile {
   website?: string | null;
   follower_count?: number | null;
   logo_url?: string | null;
@@ -191,7 +191,7 @@ export interface Company {
   tagline: string | null;
   description: string | null;
   funding: Funding;
-  profnet: Professional NetworkProfile;
+  profnet: ProfNetProfile;
   bizdata: SocialProfile;
   facebook: SocialProfile;
   x: SocialProfile;
@@ -408,7 +408,7 @@ export interface AttachedPost {
   videos: PostVideo[];
 }
 
-export interface Professional NetworkPost {
+export interface ProfNetPost {
   text: string | null;
   url: string | null;
   posted_on: string; // ISO date
@@ -428,15 +428,15 @@ export interface Professional NetworkPost {
   comments_urn: string | null;
 }
 
-export interface GetProfessional NetworkPostsRequest {
+export interface GetProfNetPostsRequest {
   url: string; // Professional Network profile URL (person or company)
   max_results?: number | null;
   pagination_token?: string | null;
 }
 
-export interface GetProfessional NetworkPostsResponse {
+export interface GetProfNetPostsResponse {
   pagination_token: string | null;
-  posts: Professional NetworkPost[];
+  posts: ProfNetPost[];
 }
 
 export interface SearchPostsRequest {
@@ -455,7 +455,7 @@ export interface SearchPostsRequest {
 
 export interface SearchPostsResponse {
   total_count: number;
-  posts: Professional NetworkPost[];
+  posts: ProfNetPost[];
 }
 
 // ── Find endpoints ────────────────────────────────────────────────────────────
@@ -470,7 +470,7 @@ export interface FindWorkEmailResponse {
 }
 
 export interface FindPhoneRequest {
-  profnet_url?: string | null;
+  linkedin_url?: string | null;
   name?: string | null;
   company_name?: string | null;
   company_domain?: string | null;
@@ -488,28 +488,28 @@ export interface ResolveIdentityRequest {
 }
 
 export interface ResolveIdentityResponse {
-  profnet_url: string | null;
+  linkedin_url: string | null;
   github_url: string | null;
   x_url: string | null;
   facebook_url: string | null;
 }
 
-export interface FindCompanyProfessional NetworkRequest {
+export interface FindCompanyProfNetRequest {
   domain: string;
 }
 
-export interface FindCompanyProfessional NetworkResponse {
-  profnet_url: string | null;
+export interface FindCompanyProfNetResponse {
+  linkedin_url: string | null;
 }
 
 export interface ReverseEmailLookupRequest {
   email: string;
-  require_profnet?: boolean | null;
+  require_linkedin?: boolean | null;
   require_x?: boolean | null;
 }
 
 export interface ReverseEmailLookupResponse {
-  profnet_url: string | null;
+  linkedin_url: string | null;
   github_url: string | null;
   x_url: string | null;
   facebook_url: string | null;
@@ -522,7 +522,7 @@ export interface GetCompanyRequest {
   live?: boolean | null;
 }
 
-export interface Professional NetworkCompanyFundingRound {
+export interface ProfNetCompanyFundingRound {
   name: string | null;
   amount_text: string | null;
   amount: number | null;
@@ -531,27 +531,27 @@ export interface Professional NetworkCompanyFundingRound {
   date: string | null;
 }
 
-export interface Professional NetworkCompanyInvestor {
+export interface ProfNetCompanyInvestor {
   name: string | null;
   url: string | null;
   logo_url: string | null;
 }
 
-export interface Professional NetworkCompanyFunding {
-  bizdata_url: string | null;
+export interface ProfNetCompanyFunding {
+  crunchbase_url: string | null;
   rounds: number | null;
-  last_funding_round: Professional NetworkCompanyFundingRound;
-  investors: Professional NetworkCompanyInvestor[];
+  last_funding_round: ProfNetCompanyFundingRound;
+  investors: ProfNetCompanyInvestor[];
 }
 
-export interface Professional NetworkCompanyHeadquarters {
+export interface ProfNetCompanyHeadquarters {
   city: string | null;
   state: string | null;
   country: string | null;
   text: string | null;
 }
 
-export interface Professional NetworkCompanyLocation {
+export interface ProfNetCompanyLocation {
   street: string | null;
   city: string | null;
   state: string | null;
@@ -560,7 +560,7 @@ export interface Professional NetworkCompanyLocation {
   is_hq: boolean | null;
 }
 
-export interface Professional NetworkCompany {
+export interface ProfNetCompany {
   id: string | null;
   name: string | null;
   public_identifier: string | null;
@@ -578,9 +578,9 @@ export interface Professional NetworkCompany {
   profile_image_url: string | null;
   cover_image_url: string | null;
   specialities: string[];
-  headquarters: Professional NetworkCompanyHeadquarters;
-  locations: Professional NetworkCompanyLocation[];
-  funding: Professional NetworkCompanyFunding;
+  headquarters: ProfNetCompanyHeadquarters;
+  locations: ProfNetCompanyLocation[];
+  funding: ProfNetCompanyFunding;
 }
 
 export interface GetCompanyJobsRequest {

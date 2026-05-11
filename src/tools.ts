@@ -20,23 +20,23 @@ Credits: 1 (Professional Network URL / work email) · 2 (name+company) · 5 (per
 
 Args:
   - email: Person's email address (personal or work)
-  - profnet_url: Professional Network profile URL (https://profnet.com/in/username)
+  - linkedin_url: Professional Network profile URL (https://profnet.com/in/username)
   - name + company_name/company_domain: Name-based lookup (requires name + at least one company field)
   - include_work_email: Also return work email (+1 credit if found)
   - include_phone: Also return phone number (+10 credits if found)
 
-At least one identifier (email, profnet_url, or name+company) is required.`,
+At least one identifier (email, linkedin_url, or name+company) is required.`,
       inputSchema: z.object({
         email: z.string().optional().describe("Email address (personal or work)"),
         name: z.string().optional().describe("Full name — use with company_name or company_domain"),
         company_name: z.string().optional().describe("Company name for name-based lookup (e.g. Microsoft)"),
         company_domain: z.string().optional().describe("Company domain for name-based lookup (e.g. microsoft.com)"),
-        profnet_url: z.string().optional().describe("Professional Network profile URL (e.g. https://profnet.com/in/johndoe)"),
+        linkedin_url: z.string().optional().describe("Professional Network profile URL (e.g. https://profnet.com/in/johndoe)"),
         include_work_email: z.boolean().optional().describe("Return work email (+1 credit if found)"),
         include_phone: z.boolean().optional().describe("Return phone number (+10 credits if found)"),
       }).refine(
-        (d) => d.email || d.profnet_url || (d.name && (d.company_name || d.company_domain)),
-        "Must provide email, profnet_url, or (name + company_name/company_domain)"
+        (d) => d.email || d.linkedin_url || (d.name && (d.company_name || d.company_domain)),
+        "Must provide email, linkedin_url, or (name + company_name/company_domain)"
       ),
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
@@ -46,7 +46,7 @@ At least one identifier (email, profnet_url, or name+company) is required.`,
         name: params.name ?? null,
         company_name: params.company_name ?? null,
         company_domain: params.company_domain ?? null,
-        profnet_url: params.profnet_url ?? null,
+        linkedin_url: params.linkedin_url ?? null,
         include_work_email: params.include_work_email ?? null,
         include_phone: params.include_phone ?? null,
       });
@@ -66,22 +66,22 @@ Credits: 1 per request
 
 Args:
   - domain: Company domain (e.g. microsoft.com or https://microsoft.com)
-  - profnet_url: Company Professional Network URL (e.g. https://profnet.com/company/microsoft)
+  - linkedin_url: Company Professional Network URL (e.g. https://profnet.com/company/microsoft)
 
-Provide at least one of domain or profnet_url.`,
+Provide at least one of domain or linkedin_url.`,
       inputSchema: z.object({
         domain: z.string().optional().describe("Company domain (e.g. microsoft.com)"),
-        profnet_url: z.string().optional().describe("Company Professional Network URL (e.g. https://profnet.com/company/microsoft)"),
+        linkedin_url: z.string().optional().describe("Company Professional Network URL (e.g. https://profnet.com/company/microsoft)"),
       }).refine(
-        (d) => d.domain || d.profnet_url,
-        "Must provide domain or profnet_url"
+        (d) => d.domain || d.linkedin_url,
+        "Must provide domain or linkedin_url"
       ),
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async (params) => {
       const result = await client.enrichCompany({
         domain: params.domain ?? null,
-        profnet_url: params.profnet_url ?? null,
+        linkedin_url: params.linkedin_url ?? null,
       });
       return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
     }
@@ -236,7 +236,7 @@ Args:
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
     },
     async (params) => {
-      const result = await client.getProfessional NetworkPosts({
+      const result = await client.getProfNetPosts({
         url: params.url,
         max_results: params.max_results ?? null,
         pagination_token: params.pagination_token ?? null,
@@ -356,22 +356,22 @@ Returns 404 (no charge) if not found.
 Credits: 10 when found · 0 on 404 — ALWAYS confirm with the user before calling.
 
 Input (choose one):
-  - Option 1: profnet_url
+  - Option 1: linkedin_url
   - Option 2: name + company_name and/or company_domain`,
       inputSchema: z.object({
-        profnet_url: z.string().optional().describe("Professional Network profile URL"),
+        linkedin_url: z.string().optional().describe("Professional Network profile URL"),
         name: z.string().optional().describe("Person's full name — use with company fields"),
         company_name: z.string().optional().describe("Company name — use with name"),
         company_domain: z.string().optional().describe("Company domain — use with name"),
       }).refine(
-        (d) => d.profnet_url || (d.name && (d.company_name || d.company_domain)),
-        "Provide profnet_url, or name + company_name/company_domain"
+        (d) => d.linkedin_url || (d.name && (d.company_name || d.company_domain)),
+        "Provide linkedin_url, or name + company_name/company_domain"
       ),
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async (params) => {
       const result = await client.findPhone({
-        profnet_url: params.profnet_url ?? null,
+        linkedin_url: params.linkedin_url ?? null,
         name: params.name ?? null,
         company_name: params.company_name ?? null,
         company_domain: params.company_domain ?? null,
@@ -437,7 +437,7 @@ Args:
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
     async (params) => {
-      const result = await client.findCompanyProfessional Network({ domain: params.domain });
+      const result = await client.findCompanyProfNet({ domain: params.domain });
       return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
     }
   );
@@ -453,17 +453,17 @@ Works with both work and personal emails.
 Credits: 5 when a profile is found · 0 on 404 (default: 404 if Professional Network not found)
 
 require_* flags control what counts as a hit:
-  - require_profnet=true (default): 404 if Professional Network not found (free)
+  - require_linkedin=true (default): 404 if Professional Network not found (free)
   - require_x=true: 404 if X not found (free)
   - Both false: always pay 5 credits on any result
 
 Args:
   - email (required): Person's work or personal email
-  - require_profnet: Return 404 (free) if Professional Network not found (default true)
+  - require_linkedin: Return 404 (free) if Professional Network not found (default true)
   - require_x: Return 404 (free) if X not found`,
       inputSchema: {
         email: z.string().min(1).describe("Person's email address (work or personal)"),
-        require_profnet: z.boolean().optional().describe("Return 404 (free) if Professional Network not found (default true)"),
+        require_linkedin: z.boolean().optional().describe("Return 404 (free) if Professional Network not found (default true)"),
         require_x: z.boolean().optional().describe("Return 404 (free) if X not found"),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
@@ -471,7 +471,7 @@ Args:
     async (params) => {
       const result = await client.reverseEmailLookup({
         email: params.email,
-        require_profnet: params.require_profnet ?? null,
+        require_linkedin: params.require_linkedin ?? null,
         require_x: params.require_x ?? null,
       });
       return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
@@ -905,7 +905,7 @@ Query modes (pass exactly one):
 Expression operators: = != < > <= >= =* (contains) !* (not contains) ^ (starts with) $ (ends with) , (AND) | (OR) () (group)
 Never wrap values in quotes: field=Software Development NOT field="Software Development"
 
-Key filter fields: company_name, domain, headquarters_country_name (Enum), industry_profnet (Enum),
+Key filter fields: company_name, domain, headquarters_country_name (Enum), industry_linkedin (Enum),
 employee_count_min/max (int), employee_count_range (Enum), revenue_range (Enum), all_tech (Enum), founded (number)
 
 Args:
@@ -955,9 +955,9 @@ Query modes (pass exactly one):
   2. filters — structured enum filters: [{ filter_type, includes, excludes }]
   3. filter_expression — expression syntax: "country_name=United States, job_title^Engineer, org_employee_count_range=51-200"
 
-Key filter fields: full_name, first_name, last_name, profnet_url, profnet_headline,
+Key filter fields: full_name, first_name, last_name, linkedin_url, linkedin_headline,
 job_title (string), job_function (Enum), job_level (Enum), job_is_current (boolean),
-country_name (Enum), city, org_company_name, org_domain, org_industry_profnet (Enum),
+country_name (Enum), city, org_company_name, org_domain, org_industry_linkedin (Enum),
 org_employee_count_range (Enum), org_revenue_range (Enum)
 Note: All company fields for people are prefixed with org_
 
