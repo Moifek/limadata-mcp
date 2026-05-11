@@ -889,8 +889,8 @@ Args:
     }
   );
 
-  // ── database_search_company ────────────────────────────────────────────────
-  server.registerTool(
+  // ── database_search_company (DISABLED — BETA, not publicly available) ─────
+  /* server.registerTool(
     "database_search_company",
     {
       title: "Database Search Company (BETA)",
@@ -994,4 +994,5 @@ Args:
       return { content: [{ type: "text" as const, text: withCredits(JSON.stringify(result, null, 2), client) }] };
     }
   );
+  */ // end disabled database tools
 }

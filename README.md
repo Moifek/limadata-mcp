@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server that gives Claude access to the Limadata A
 
 Easiest path, no Node install or JSON editing required:
 
-1. Download `limadata-mcp.dxt` from the [latest release](https://github.com/moifek/limadata-mcp/releases).
+1. Download `limadata-mcp-community.dxt` from the [latest release](https://github.com/moifek/limadata-mcp-community/releases).
 2. Double-click the file. Claude Desktop opens an install dialog.
 3. Paste your API key when prompted — get one at https://app.limadata.com/settings/apikeys.
 4. Done.
@@ -20,7 +20,7 @@ Edit your Claude Desktop config (`~/Library/Application Support/Claude/claude_de
   "mcpServers": {
     "limadata": {
       "command": "npx",
-      "args": ["limadata-mcp"],
+      "args": ["limadata-mcp-community"],
       "env": {
         "LIMADATA_API_KEY": "your_api_key_here"
       }
@@ -31,7 +31,7 @@ Edit your Claude Desktop config (`~/Library/Application Support/Claude/claude_de
 
 Restart Claude Desktop after saving.
 
-## Tools (27 total)
+## Tools (25 total)
 
 ### Enrich
 | Tool | Description | Credits |
@@ -60,12 +60,6 @@ Restart Claude Desktop after saving.
 | `get_company` | Professional Network company profile by URL (cached or live) | 1 / 3 live |
 | `get_company_jobs` | Job listings for a Professional Network company page | 2 |
 | `get_company_insights` | Deep research: funding, investors, tech stack, news | 5 |
-
-### Database (BETA)
-| Tool | Description | Credits |
-|------|-------------|---------|
-| `database_search_company` | Company database search via AI prompt, filters, or expression | BETA |
-| `database_search_people` | People database search via AI prompt, filters, or expression | BETA |
 
 ### Account
 | Tool | Description | Credits |

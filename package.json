@@ -1,13 +1,13 @@
 {
-  "name": "limadata-mcp",
-  "version": "1.0.4",
-  "description": "MCP server for Limadata API — 27 tools: enrich, find emails/phones, prospect, watch Professional Network, database search",
+  "name": "limadata-mcp-community",
+  "version": "1.1.0",
+  "description": "MCP server for Limadata API — 25 tools: enrich, find emails/phones, prospect, watch Professional Network",
   "type": "module",
   "main": "dist/server.js",
   "bin": "dist/server.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/moifek/limadata-mcp.git"
+    "url": "https://github.com/moifek/limadata-mcp-community.git"
   },
   "author": "Moifek Maiza <Mouafak.Maiza@proton.me>",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "setup:claude-desktop": "bash scripts/setup-claude-desktop.sh",
     "dxt:validate": "mcpb validate manifest.json",
     "dxt:stage": "rm -rf build/dxt && mkdir -p build/dxt && cp -r dist build/dxt/ && cp manifest.json package.json build/dxt/ && (cp icon.png build/dxt/ 2>/dev/null || true) && cd build/dxt && npm install --omit=dev --ignore-scripts --no-audit --no-fund",
-    "dxt:pack": "npm run build && npm run dxt:stage && mcpb pack build/dxt limadata-mcp.dxt"
+    "dxt:pack": "npm run build && npm run dxt:stage && mcpb pack build/dxt limadata-mcp-community.dxt"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

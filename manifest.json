@@ -1,20 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/anthropics/dxt/main/dist/dxt-manifest.schema.json",
   "manifest_version": "0.4",
-  "name": "limadata-mcp",
+  "name": "limadata-mcp-community",
   "display_name": "Limadata",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Enrich people and companies, prospect leads, monitor Professional Network changes, and search with the Limadata API.",
-  "long_description": "Exposes 27 Limadata tools to Claude: enrich, search, prospect, watch/monitor, find emails/phones/profiles, company lookup, database search (BETA), and credits balance. Get an API key at https://app.limadata.com/settings/apikeys.",
+  "long_description": "Exposes 25 Limadata tools to Claude: enrich, search, prospect, watch/monitor, find emails/phones/profiles, company lookup, and credits balance. Get an API key at https://app.limadata.com/settings/apikeys.",
   "author": {
     "name": "Moifek Maiza",
     "email": "Mouafak.Maiza@proton.me"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/moifek/limadata-mcp.git"
+    "url": "https://github.com/moifek/limadata-mcp-community.git"
   },
-  "homepage": "https://github.com/moifek/limadata-mcp",
+  "homepage": "https://github.com/moifek/limadata-mcp-community",
   "license": "MIT",
   "keywords": [
     "limadata",
@@ -70,9 +70,7 @@
     { "name": "list_watches", "description": "List all watch subscriptions for the account." },
     { "name": "get_watch", "description": "Get a watch subscription by ID." },
     { "name": "update_watch", "description": "Update or pause/resume a watch subscription." },
-    { "name": "get_watch_mock_payload", "description": "Get a sample webhook payload for a watch type." },
-    { "name": "database_search_company", "description": "Search company database via AI prompt, filters, or expression (BETA)." },
-    { "name": "database_search_people", "description": "Search people database via AI prompt, filters, or expression (BETA)." }
+    { "name": "get_watch_mock_payload", "description": "Get a sample webhook payload for a watch type." }
   ],
   "compatibility": {
     "claude_desktop": ">=0.10.0",
